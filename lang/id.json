@@ -1,0 +1,15 @@
+{
+    "Register": "Daftar",
+    "Name": "Nama",
+    "Email": "Email",
+    "Password": "Password",
+    "Confirm Password": "Konfirmasi Password",
+    "Already registered?": "Sudah terdaftar? Masuk",
+
+    "Log in": "Masuk",
+    "Remember me": "Ingat Saya",
+    "Forgot your password?": "Lupa password?",
+    "Forgot your password? No problem.": "Lupa password? Tidak masalah.",
+    "Just let us know your email address...": "Masukkan email Anda dan kami akan mengirimkan tautan untuk reset password.",
+    "Email Password Reset Link": "Reset Password"
+}
