@@ -1,0 +1,3 @@
+- Checkout belum sempurna... biaya kurir masih pakai dummy dan component biaya kurir belum dipakai tapi sudah ada.
+- perhitungan biaya belum dilakukan
+- model checkout masih dipertimbangkan akan pakai dummy atau midtrans
