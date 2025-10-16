@@ -2,7 +2,7 @@
 
 @section('content')
         <!-- Menu -->
-        <nav class="flex items-center space-x-8 text-sm font-medium text-gray-600">
+        <!-- <nav class="flex items-center space-x-8 text-sm font-medium text-gray-600">
           <a
             href="#"
             class="hover:text-orange-500 transition"
@@ -41,7 +41,7 @@
           </button>
         </nav>
       </div>
-    </header>
+    </header> -->
 
     <!-- Page Title -->
     <section class="text-center mt-14 mb-10">

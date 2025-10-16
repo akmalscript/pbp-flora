@@ -9,7 +9,20 @@ class ProductController extends Controller
 {
     public function show($id)
     {
-        $product = Product::findOrFail($id);
-        return view('detail', compact('product'));
+        $product = Product::with('photos')->findOrFail($id);
+
+        $total = Product::where('active', 1)
+                        ->where('id', '!=', $product->id)
+                        ->count();
+
+        $randomOffset = rand(0, max(0, $total - 4));
+
+        $recommendedProducts = Product::where('active', 1)
+                                ->where('id', '!=', $product->id)
+                                ->skip($randomOffset)
+                                ->take(4)
+                                ->get();
+
+        return view('productDetail', compact('product', 'recommendedProducts'));
     }
 }

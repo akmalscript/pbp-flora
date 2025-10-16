@@ -16,6 +16,10 @@ class Cart extends Model
         'user_id',
     ];
 
+    protected $attributes = [
+        'active' => 1,
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

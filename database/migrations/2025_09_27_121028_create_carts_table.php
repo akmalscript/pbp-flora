@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->boolean('active')->default(1);
             $table->timestamps();
             // $table->id('user_id');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');

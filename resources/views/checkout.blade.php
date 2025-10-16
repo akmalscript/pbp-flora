@@ -7,7 +7,7 @@
         {{-- Kolom Kiri --}}
         <div class="flex flex-1 flex-col md:flex-[2] gap-4">
             <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                <x-checkout.shipping-method selectedMethod="PickUp" />
+                <x-checkout.shipping-method />
             </div>
 
             <div id="shipping-address-container" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 transition-all duration-500 ease-in-out hidden">

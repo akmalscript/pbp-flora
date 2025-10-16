@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,13 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout/calculate', [CheckoutController::class, 'calculateShipping'])->name('checkout.calculate');
+
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+        Route::put('/cart/item/{id}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/item/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+        Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+        Route::patch('/cart/deactivate/{id}', [CartController::class, 'deactivate'])->name('cart.deactivate');
     });
 
 Route::middleware(['auth', 'role:admin'])
