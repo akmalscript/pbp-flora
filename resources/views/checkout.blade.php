@@ -47,7 +47,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // === KONFIGURASI & SELEKSI ELEMEN ===
         const wilayahApiBaseUrl = "{{ url('/api/wilayah') }}";
-        const calculateShippingUrl = "{{ route('checkout.calculate') }}";
+        const calculateShippingUrl = "{{ route('user.checkout.calculate') }}";
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         const shippingForm = document.getElementById('shipping-address-form');

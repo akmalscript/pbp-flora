@@ -28,6 +28,11 @@ class Product extends Model
         'active' => 1,
     ];
 
+    public function photos()
+    {
+        return $this->hasMany(ProductPhoto::class);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');

@@ -13,24 +13,29 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::create([
-            'name' => 'Elektronik',
-            'description' => 'Perangkat elektronik seperti HP, Laptop, dll.'
-        ]);
+        // Category::create([
+        //     'name' => 'Elektronik',
+        //     'description' => 'Perangkat elektronik seperti HP, Laptop, dll.'
+        // ]);
+
+        // Category::create([
+        //     'name' => 'Pakaian',
+        //     'description' => 'Baju, celana, dan aksesoris fashion.'
+        // ]);
+
+        // Category::create([
+        //     'name' => 'Makanan & Minuman',
+        //     'description' => 'Snack, minuman, dan bahan makanan.'
+        // ]);
+
+        // Category::create([
+        //     'name' => 'Buku',
+        //     'description' => 'Buku fiksi, non-fiksi, dan buku anak-anak.'
+        // ]);
 
         Category::create([
-            'name' => 'Pakaian',
-            'description' => 'Baju, celana, dan aksesoris fashion.'
-        ]);
-
-        Category::create([
-            'name' => 'Makanan & Minuman',
-            'description' => 'Snack, minuman, dan bahan makanan.'
-        ]);
-
-        Category::create([
-            'name' => 'Buku',
-            'description' => 'Buku fiksi, non-fiksi, dan buku anak-anak.'
+            'name' => 'Bunga',
+            'description' => 'Bunga cantik nan indah'
         ]);
     }
 }

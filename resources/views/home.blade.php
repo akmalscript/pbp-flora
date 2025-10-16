@@ -115,46 +115,25 @@
       <div class="container mx-auto">
         <h2 class="text-2xl font-bold text-center mb-8">Featured Products</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="text-center">
-            <img
-              src="images/tulip.jpg"
-              alt="Tulip Bouquet"
-              class="rounded-lg shadow-md"
-            />
-            <p class="mt-2 font-bold">Tulip Bouquet</p>
-            <p class="text-green-600">Rp50.000</p>
-            <button class="mt-2 text-gray-500 hover:text-black">🛒</button>
-          </div>
-          <div class="text-center">
-            <img
-              src="images/sunflower.jpg"
-              alt="Sunflower Bouquet"
-              class="rounded-lg shadow-md"
-            />
-            <p class="mt-2 font-bold">Sunflower Bouquet</p>
-            <p class="text-green-600">Rp50.000</p>
-            <button class="mt-2 text-gray-500 hover:text-black">🛒</button>
-          </div>
-          <div class="text-center">
-            <img
-              src="images/Bunga 3.jpeg"
-              alt="Rose Bouquet"
-              class="rounded-lg shadow-md"
-            />
-            <p class="mt-2 font-bold">Rose Bouquet</p>
-            <p class="text-green-600">Rp75.000</p>
-            <button class="mt-2 text-gray-500 hover:text-black">🛒</button>
-          </div>
-          <div class="text-center">
-            <img
-              src="images/Bunga 4.jpeg"
-              alt="Mix Bouquet"
-              class="rounded-lg shadow-md"
-            />
-            <p class="mt-2 font-bold">Mix Bouquet</p>
-            <p class="text-green-600">Rp60.000</p>
-            <button class="mt-2 text-gray-500 hover:text-black">🛒</button>
-          </div>
+          @if($products->count())
+            @foreach ($products as $product)
+              <a href="{{ route('user.products.show', $product->id) }}">
+                <div class="text-center">
+                  <img
+                    src="{{ $product->image_url }}"
+                    alt="{{ $product->name }}"
+                    class="rounded-lg shadow-md hover:scale-105 transition-transform duration-200"
+                  />
+                  <p class="mt-2 font-bold">{{ $product->name }}</p>
+                  <p class="text-green-600">Harga: Rp{{ number_format($product->price, 0, ',', '.') }}</p>
+                  <button class="mt-2 text-gray-500 hover:text-black">🛒</button>
+                </div>
+              </a>
+            @endforeach
+          @else
+              <p>Tidak ada produk tersedia.</p>
+          @endif
+          
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 @props(['provinces' => []])
 
-<form id="shipping-address-form" action="{{ route('checkout.calculate') }}" method="POST" autocomplete="off">
+<form id="shipping-address-form" action="{{ route('user.checkout.calculate') }}" method="POST" autocomplete="off">
     @csrf
     <h3 class="text-xl font-bold text-slate-800 mb-4">Alamat Pengiriman</h3>
     <div class="space-y-4">
