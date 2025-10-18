@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CatalogController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
@@ -52,7 +54,16 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::view('/admin-dashboard', 'admindashboard')->name('dashboard.view');
         Route::view('/manajemen-kategori', 'manajemenkategori')->name('categories.manage');
+        Route::get('/manajemen-katalog', [CatalogController::class, 'index'])->name('catalog.manage');
         Route::view('/orders-management', 'order')->name('orders.manage');
+        Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
+        Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/admin/products/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/admin/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('/admin/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('/admin/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/admin/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
     });
 
 // API perlu setting khusus agar hanya bisa diakses user
@@ -61,7 +72,5 @@ Route::prefix('api/wilayah')->name('api.wilayah.')->group(function () {
     Route::get('/districts/{city_id}', [WilayahController::class, 'getDistricts']);
     Route::get('/villages/{district_id}', [WilayahController::class, 'getVillages']);
 });
-
-// Route::get('/test', [OrderController::class, 'index']);
 
 require __DIR__.'/auth.php';

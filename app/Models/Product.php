@@ -16,11 +16,11 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'available',
         'image_url',
         'pre_order_duration',
-        'active',
         'category_id',
+        'available',
+        'active',
     ];
 
     protected $attributes = [
