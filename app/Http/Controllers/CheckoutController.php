@@ -26,18 +26,12 @@ class CheckoutController extends Controller
         if ($user) {
             $cart = Cart::where('user_id', $user->id)
                         ->where('active', true)
-                        ->with('products.photos')
+                        ->with('products')
                         ->first();
 
             if ($cart && $cart->products) {
                 foreach ($cart->products as $product) {
-                    // Ambil foto utama jika ada, fallback ke product.image_url atau placeholder
-                    $imageUrl = null;
-                    if ($product->photos && $product->photos->count()) {
-                        $imageUrl = $product->photos->first()->url ?? $product->image_url ?? null;
-                    } else {
-                        $imageUrl = $product->image_url ?? null;
-                    }
+                    $imageUrl = $product->image_url ?? null;
 
                     $orderItems[] = [
                         'id' => $product->id,
@@ -159,10 +153,76 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
+        $wantsJsonResponse = $request->expectsJson()
+            || $request->isJson()
+            || $request->wantsJson()
+            || $request->ajax();
+
         // Build server-side total from cart items, shipping and session coupon
         $cart = Cart::where('user_id', $user->id)->where('active', true)->with('products')->first();
         if (!$cart || $cart->products->isEmpty()) {
-            return response()->json(['error' => 'Cart is empty'], 400);
+            if ($wantsJsonResponse) {
+                return response()->json(['error' => 'Cart is empty'], 400);
+            }
+
+            return redirect()->route('user.cart.index')->with('error', 'Keranjang Anda kosong.');
+        }
+
+        $stockAdjustments = [];
+
+        foreach ($cart->products as $product) {
+            $latestProduct = Product::find($product->id);
+
+            $productName = $latestProduct->name ?? $product->name;
+
+            if (! $latestProduct || (int) $latestProduct->stock <= 0) {
+                $cart->products()->detach($product->id);
+                $stockAdjustments[] = "Produk {$productName} stok habis dan dihapus dari keranjang.";
+                continue;
+            }
+
+            $currentQuantity = (int) ($product->pivot->quantity ?? 0);
+            $availableStock = (int) $latestProduct->stock;
+
+            if ($currentQuantity > $availableStock) {
+                $cart->products()->updateExistingPivot($product->id, [
+                    'quantity' => $availableStock,
+                ]);
+
+                $stockAdjustments[] = "Kuantitas {$productName} disesuaikan menjadi {$availableStock} sesuai stok.";
+            }
+        }
+
+        if (! empty($stockAdjustments)) {
+            $cart->load('products');
+
+            session()->flash('stock_adjustments', $stockAdjustments);
+
+            if ($cart->products->isEmpty()) {
+                $message = 'Stok produk sudah tidak tersedia. Keranjang dikosongkan.';
+
+                if ($wantsJsonResponse) {
+                    return response()->json([
+                        'redirect' => route('user.cart.index'),
+                        'error' => $message,
+                        'adjustments' => $stockAdjustments,
+                    ], 409);
+                }
+
+                return redirect()->route('user.cart.index')->with('error', $message);
+            }
+
+            $message = 'Beberapa produk mengalami perubahan stok. Silakan review keranjang Anda.';
+
+            if ($wantsJsonResponse) {
+                return response()->json([
+                    'redirect' => route('user.cart.index'),
+                    'error' => $message,
+                    'adjustments' => $stockAdjustments,
+                ], 409);
+            }
+
+            return redirect()->route('user.cart.index')->with('warning', $message);
         }
 
         // Validate shipping method and ensure courier selection when required
@@ -354,8 +414,31 @@ class CheckoutController extends Controller
             return redirect()->route('user.checkout.index')->withErrors(['order' => 'Order not found']);
         }
 
-        $order->status = 'Processing';
-        $order->save();
+        $wasProcessed = strcasecmp((string) $order->status, 'Processing') === 0;
+
+        if (! $wasProcessed) {
+            $order->load('products');
+
+            foreach ($order->products as $product) {
+                $orderedQuantity = (int) ($product->pivot->quantity ?? 0);
+
+                if ($orderedQuantity <= 0) {
+                    continue;
+                }
+
+                $currentStock = (int) ($product->stock ?? 0);
+                $newStock = max(0, $currentStock - $orderedQuantity);
+
+                if ($newStock !== $currentStock) {
+                    $product->update(['stock' => $newStock]);
+                }
+            }
+        }
+
+        if (! $wasProcessed) {
+            $order->status = 'Processing';
+            $order->save();
+        }
 
         $user = Auth::user();
         $userId = $user ? $user->id : $order->user_id;

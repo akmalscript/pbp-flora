@@ -17,6 +17,15 @@ export default {
             fontFamily: {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
             },
+            width: {
+                70: "17.5rem",
+            },
+            height: {
+                70: "17.5rem",
+            },
+            maxHeight: {
+                70: "17.5rem",
+            },
         },
     },
 

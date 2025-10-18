@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
@@ -12,12 +14,13 @@ class HomeController extends Controller
         $searchTerm = trim((string) $request->input('search', ''));
         $selectedCategory = $request->input('category', 'all');
 
-        $categoryLabels = [
-            'all' => 'All',
-            'bouquets' => 'Bouquets',
-            'vase-flowers' => 'Vase Flowers',
-            'gifts' => 'Gifts',
-        ];
+        $categoriesFromDb = Category::orderBy('name')->get();
+        $categorySlugToName = $categoriesFromDb
+            ->mapWithKeys(fn (Category $category) => [Str::slug($category->name) => $category->name]);
+
+        $categoryLabels = collect(['all' => 'All'])
+            ->merge($categorySlugToName)
+            ->all();
 
         if (! array_key_exists($selectedCategory, $categoryLabels)) {
             $selectedCategory = 'all';
@@ -48,9 +51,13 @@ class HomeController extends Controller
             ],
         ];
 
-        $featuredNames = array_values(array_unique(array_merge(
-            ...array_values($categoryProductNames)
-        )));
+        $categoryProductNames = collect($categoryProductNames)
+            ->only(array_keys($categorySlugToName->all()))
+            ->toArray();
+
+        $featuredNames = empty($categoryProductNames)
+            ? []
+            : array_values(array_unique(array_merge(...array_values($categoryProductNames))));
 
         $featuredImages = [
             'Tulip Bouquet' => 'images/bouquet/tulip.jpg',
@@ -73,11 +80,14 @@ class HomeController extends Controller
 
         $query = Product::query()->where('active', 1);
 
-        if ($selectedCategory !== 'all') {
-            $namesToFilter = $categoryProductNames[$selectedCategory] ?? [];
+        $categorySlugToId = $categoriesFromDb
+            ->mapWithKeys(fn (Category $category) => [Str::slug($category->name) => $category->id]);
 
-            if (! empty($namesToFilter)) {
-                $query->whereIn('name', $namesToFilter);
+        if ($selectedCategory !== 'all') {
+            $categoryId = $categorySlugToId[$selectedCategory] ?? null;
+
+            if ($categoryId) {
+                $query->where('category_id', $categoryId);
             } else {
                 $query->whereRaw('0 = 1');
             }
@@ -110,13 +120,63 @@ class HomeController extends Controller
                 ->reject(fn ($name) => $initialProducts->contains('name', $name))
                 ->values();
 
+        $hasFeaturedFallback = ! $isSearching && ! $isFilteringCategory && $remainingFeaturedNames->isNotEmpty();
+
+        $resolveImageUrl = static function (?string $path) {
+            if (! $path) {
+                return null;
+            }
+
+            if (Str::startsWith($path, ['http://', 'https://', '//'])) {
+                return $path;
+            }
+
+            return asset($path);
+        };
+
+        $displayProducts = $initialProducts->map(function (Product $product) use ($resolveImageUrl) {
+            $stockCount = (int) ($product->stock ?? 0);
+            $isOutOfStock = $stockCount <= 0;
+
+            return [
+                'name' => $product->name,
+                'price' => (int) $product->price,
+                'image_url' => $resolveImageUrl($product->image_url),
+                'link' => $isOutOfStock ? '#' : route('user.products.show', $product->id),
+                'is_clickable' => ! $isOutOfStock,
+                'is_out_of_stock' => $isOutOfStock,
+                'stock' => $stockCount,
+                'show_stock' => true,
+                'is_placeholder' => false,
+            ];
+        });
+
+        if ($hasFeaturedFallback) {
+            foreach ($remainingFeaturedNames as $featuredName) {
+                $featured = $featuredProducts->get($featuredName);
+                $priceValue = (int) ($featured?->price ?? 50000);
+                $imagePath = $featured?->image_url ?? ($featuredImages[$featuredName] ?? null);
+                $stockCount = $featured ? (int) ($featured->stock ?? 0) : null;
+                $isOutOfStock = $featured ? $stockCount <= 0 : false;
+
+                $displayProducts->push([
+                    'name' => $featuredName,
+                    'price' => $priceValue,
+                    'image_url' => $resolveImageUrl($imagePath),
+                    'link' => $featured && ! $isOutOfStock ? route('user.products.show', $featured->id) : '#',
+                    'is_clickable' => $featured && ! $isOutOfStock,
+                    'is_out_of_stock' => $isOutOfStock,
+                    'stock' => $featured ? $stockCount : null,
+                    'show_stock' => $featured !== null,
+                    'is_placeholder' => $featured === null,
+                ]);
+            }
+        }
+
+        $displayProducts = $displayProducts->values();
+
         return view('home', [
-            'products' => $filteredProducts,
-            'initialProducts' => $initialProducts,
-            'featuredNames' => $featuredNames,
-            'featuredNamesRemaining' => $remainingFeaturedNames,
-            'featuredProducts' => $featuredProducts,
-            'featuredImages' => $featuredImages,
+            'displayProducts' => $displayProducts,
             'searchTerm' => $searchTerm,
             'isSearching' => $isSearching,
             'totalResults' => $filteredProducts->count(),

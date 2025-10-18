@@ -15,7 +15,7 @@ class CatalogController extends Controller
     public function index(): View
     {
         $products = Product::query()
-            ->with(['category', 'photos'])
+            ->with(['category'])
             ->orderBy('name')
             ->get();
 

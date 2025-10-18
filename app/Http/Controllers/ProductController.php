@@ -61,7 +61,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with('photos')->findOrFail($id);
+    $product = Product::findOrFail($id);
 
         $total = Product::where('active', 1)
                         ->where('id', '!=', $product->id)
@@ -69,11 +69,11 @@ class ProductController extends Controller
 
         $randomOffset = rand(0, max(0, $total - 4));
 
-        $recommendedProducts = Product::where('active', 1)
-                                ->where('id', '!=', $product->id)
-                                ->skip($randomOffset)
-                                ->take(4)
-                                ->get();
+    $recommendedProducts = Product::where('active', 1)
+                ->where('id', '!=', $product->id)
+                ->skip($randomOffset)
+                ->take(4)
+                ->get();
 
         return view('productDetail', compact('product', 'recommendedProducts'));
     }
@@ -113,7 +113,7 @@ class ProductController extends Controller
             'name' => ['required', 'string', 'max:32'],
             'description' => ['required', 'string', 'max:255'],
             'price' => ['required', 'integer', 'min:0'],
-            'available' => ['required', 'boolean'],
+            'stock' => ['required', 'integer', 'min:0'],
             'image_url' => ['required', 'string', 'max:255'],
             'pre_order_duration' => ['required', 'integer', 'min:0'],
             'category_id' => ['nullable', Rule::exists('categories', 'id')],
@@ -124,7 +124,7 @@ class ProductController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'],
             'price' => (int) $validated['price'],
-            'available' => $request->boolean('available'),
+            'stock' => (int) $validated['stock'],
             'image_url' => $validated['image_url'],
             'pre_order_duration' => (int) $validated['pre_order_duration'],
             'category_id' => $validated['category_id'] ?? null,

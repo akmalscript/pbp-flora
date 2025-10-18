@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Detail Pesanan | Flora')
 
 @section('content')
     <!-- MAIN CONTENT -->

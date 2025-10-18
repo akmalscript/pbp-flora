@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Checkout')
 
 @section('content')
 <div class="flex flex-col p-4 max-w-5xl mx-auto">
@@ -495,6 +497,60 @@ document.getElementById('pay-button').addEventListener('click', async function()
         payload.village_label = selectLabel('village');
     }
 
+    const escapeHtml = (value) => {
+        if (typeof value !== 'string') {
+            return value;
+        }
+
+        return value.replace(/[&<>"']/g, (char) => {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+            };
+
+            return map[char] || char;
+        });
+    };
+
+    const showAlert = (options = {}, onClose) => {
+        const {
+            title = 'Informasi',
+            text = '',
+            html = '',
+            icon = 'info',
+            confirmButtonText = 'OK',
+        } = options;
+
+        if (typeof window.Swal !== 'undefined') {
+            Swal.fire({
+                title,
+                text: html ? undefined : text,
+                html: html || undefined,
+                icon,
+                confirmButtonText,
+            }).then(() => {
+                if (typeof onClose === 'function') {
+                    onClose();
+                }
+            });
+
+            return;
+        }
+
+        const fallbackMessage = html
+            ? html.replace(/<br\s*\/?>(\s|$)/gi, '\n').replace(/<[^>]*>/g, '')
+            : (text || title);
+
+        alert(fallbackMessage);
+
+        if (typeof onClose === 'function') {
+            onClose();
+        }
+    };
+
     const response = await fetch('{{ route('user.checkout.payment') }}', {
         method: 'POST',
         headers: {
@@ -504,7 +560,50 @@ document.getElementById('pay-button').addEventListener('click', async function()
         body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        console.error('Failed to parse checkout response', error);
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: Terjadi kesalahan tak terduga.',
+            icon: 'error',
+        });
+        return;
+    }
+
+    if (!response.ok) {
+        if (data && data.redirect) {
+            const baseMessage = data.error || 'Perubahan stok terdeteksi.';
+            let htmlMessage = `<p>${escapeHtml(baseMessage)}</p>`;
+
+            if (Array.isArray(data.adjustments) && data.adjustments.length) {
+                const items = data.adjustments
+                    .map((item) => `<li>${escapeHtml(item)}</li>`)
+                    .join('');
+                htmlMessage += `<ul class="text-left mt-3 space-y-1">${items}</ul>`;
+            }
+
+            showAlert({
+                title: 'Perubahan Stok',
+                html: htmlMessage,
+                icon: 'warning',
+                confirmButtonText: 'Kembali ke Keranjang',
+            }, () => {
+                window.location.href = data.redirect;
+            });
+            return;
+        }
+
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: ' + (data && data.error ? data.error : 'Perubahan stok terdeteksi.'),
+            icon: 'error',
+        });
+        return;
+    }
+
     if(data.snapToken) {
         snap.pay(data.snapToken, {
             onSuccess: function(result){
@@ -513,18 +612,34 @@ document.getElementById('pay-button').addEventListener('click', async function()
             },
             onPending: function(result){
                 console.log('pending', result);
-                alert('Pembayaran pending, silakan selesaikan di Midtrans');
+                showAlert({
+                    title: 'Pembayaran Pending',
+                    text: 'Pembayaran pending, silakan selesaikan di Midtrans.',
+                    icon: 'info',
+                });
             },
             onError: function(result){
                 console.log('error', result);
-                alert('Pembayaran gagal: ' + result.status_message);
+                showAlert({
+                    title: 'Pembayaran Gagal',
+                    text: 'Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi.'),
+                    icon: 'error',
+                });
             },
             onClose: function(){
-                alert('Anda menutup popup pembayaran tanpa menyelesaikan pembayaran');
+                showAlert({
+                    title: 'Pembayaran Belum Selesai',
+                    text: 'Anda menutup popup pembayaran tanpa menyelesaikan pembayaran.',
+                    icon: 'warning',
+                });
             }
         });
     } else {
-        alert('Gagal membuat transaksi: ' + data.error);
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: ' + data.error,
+            icon: 'error',
+        });
     }
 });
 </script>

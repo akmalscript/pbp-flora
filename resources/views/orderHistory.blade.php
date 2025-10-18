@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Riwayat Pesanan | Flora')
 
 @section('content')
 @php

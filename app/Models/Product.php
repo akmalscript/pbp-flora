@@ -19,19 +19,14 @@ class Product extends Model
         'image_url',
         'pre_order_duration',
         'category_id',
-        'available',
+        'stock',
         'active',
     ];
 
     protected $attributes = [
-        'available' => 0,
+        'stock' => 0,
         'active' => 1,
     ];
-
-    public function photos()
-    {
-        return $this->hasMany(ProductPhoto::class);
-    }
 
     public function category()
     {

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -33,9 +32,26 @@ class CategorySeeder extends Seeder
         //     'description' => 'Buku fiksi, non-fiksi, dan buku anak-anak.'
         // ]);
 
-        Category::create([
-            'name' => 'Bunga',
-            'description' => 'Bunga cantik nan indah'
-        ]);
+        $categories = [
+            [
+                'name' => 'Bouquets',
+                'description' => 'Fresh hand-tied bouquets ready for gifting.',
+            ],
+            [
+                'name' => 'Vase Flowers',
+                'description' => 'Elegant flower arrangements presented in vases.',
+            ],
+            [
+                'name' => 'Gifts',
+                'description' => 'Complementary gifts and hampers to pair with flowers.',
+            ],
+        ];
+
+        foreach ($categories as $category) {
+            Category::updateOrCreate(
+                ['name' => $category['name']],
+                ['description' => $category['description']]
+            );
+        }
     }
 }

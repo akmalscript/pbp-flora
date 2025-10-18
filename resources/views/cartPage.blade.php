@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Keranjang Belanja')
 
 @section('content')
 <main class="flex-grow max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-12">

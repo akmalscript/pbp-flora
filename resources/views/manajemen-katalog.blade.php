@@ -45,23 +45,22 @@
                 <thead class="text-left text-gray-600 border-b">
                     <tr>
                         <th class="py-3 px-4">Produk</th>
-                        <th class="py-3 px-4 text-center">Tersedia</th>
+                        <th class="py-3 px-4 text-center">Stok</th>
                         <th class="py-3 px-4 text-center" colspan="2">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
                     @forelse ($products as $product)
                         @php
-                            $primaryPhoto = $product->photos->first();
-                            $imageUrl = $primaryPhoto->url ?? $product->image_url ?? 'https://placehold.co/96x96?text=No+Image';
-                            $isAvailable = (bool) ($product->available ?? false);
+                            $imageUrl = $product->image_url ?? 'https://placehold.co/96x96?text=No+Image';
+                            $stock = (int) ($product->stock ?? 0);
                             $categoryName = optional($product->category)->name ?? 'Tanpa Kategori';
                             $productPayload = [
                                 'id' => $product->id,
                                 'name' => $product->name,
                                 'description' => $product->description,
                                 'price' => $product->price,
-                                'available' => $isAvailable ? 1 : 0,
+                                'stock' => $stock,
                                 'image_url' => $product->image_url,
                                 'pre_order_duration' => $product->pre_order_duration,
                                 'category_id' => $product->category_id,
@@ -79,7 +78,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-center">{!! $isAvailable ? '&#x2714;' : '&#x2716;' !!}</td>
+                            <td class="py-3 px-4 text-center">{{ $stock }}</td>
                             <td class="py-3 px-4 text-center">
                                 <button type="button" class="edit-product-btn text-orange-500 text-xs font-semibold hover:underline" data-product='@json($productPayload)'>Edit</button>
                             </td>
@@ -169,7 +168,6 @@
             </div>
             <form id="create-product-form" method="POST" action="{{ route('admin.products.store') }}" class="px-6 py-6 space-y-4">
                 @csrf
-                <input type="hidden" name="available" value="1">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -179,6 +177,10 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-price">Harga</label>
                         <input id="create-product-price" name="price" type="number" min="0" step="0.01" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700" for="create-product-stock">Stok</label>
+                        <input id="create-product-stock" name="stock" type="number" min="0" step="1" value="0" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-category">Kategori</label>
@@ -244,11 +246,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700" for="edit-product-available">Ketersediaan</label>
-                        <select id="edit-product-available" name="available" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none">
-                            <option value="1">Tersedia</option>
-                            <option value="0">Tidak Tersedia</option>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-700" for="edit-product-stock">Stok</label>
+                        <input id="edit-product-stock" name="stock" type="number" min="0" step="1" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                 </div>
 
@@ -404,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (form.elements['name']) form.elements['name'].value = data.name || '';
             if (form.elements['description']) form.elements['description'].value = data.description || '';
             if (form.elements['price']) form.elements['price'].value = data.price ?? '';
-            if (form.elements['available']) form.elements['available'].value = String(data.available ?? 1);
+            if (form.elements['stock']) form.elements['stock'].value = data.stock ?? 0;
             if (form.elements['image_url']) form.elements['image_url'].value = data.image_url || '';
             if (form.elements['pre_order_duration']) form.elements['pre_order_duration'].value = data.pre_order_duration ?? '';
             if (form.elements['category_id']) form.elements['category_id'].value = data.category_id || '';
