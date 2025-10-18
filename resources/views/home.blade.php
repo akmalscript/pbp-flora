@@ -35,6 +35,12 @@
 
 <body>
 
+    @php
+        $baseHomeRoute = request()->routeIs('user.home') ? route('user.home') : route('home');
+    @endphp
+
+    <div id="top"></div>
+
     <div class="mx-auto">
         <header class="relative z-20 py-4 px-6">
             <div class="flex items-center justify-between text-sm text-gray-700">
@@ -44,9 +50,10 @@
                     <span class="text-base font-semibold tracking-[0.3em] text-gray-900">FLORA</span>
                 </div>
                 <nav class="flex items-center space-x-8 uppercase tracking-wider text-[#d81b60]">
-                    <a href="#" class="hover:text-gray-900 transition-colors">Home</a>
-                    <a href="#" class="hover:text-gray-900 transition-colors">Shop</a>
-                    <a href="#" class="hover:text-gray-900 transition-colors">Contact</a>
+                    <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-900 transition-colors">Home</a>
+                    <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-900 transition-colors">Shop</a>
+                    <button type="button" id="openContact"
+                        class="hover:text-gray-900 transition-colors focus:outline-none">Contact</button>
                 </nav>
                 <div class="flex items-center space-x-5 text-gray-600">
                     <button type="button" id="navbarSearchTrigger" class="hover:text-gray-900 transition-colors"
@@ -124,20 +131,25 @@
             <div class="relative h-full flex flex-col justify-center items-start max-w-xl px-12">
                 <h1 class="text-5xl font-bold leading-tight drop-shadow-lg">FRESH BLOOMS & GORGEOUS GIFTS</h1>
                 <p class="mt-4 text-lg text-white/90 drop-shadow">Discover Your Perfect Arrangement</p>
-                <a href="#"
+                <a href="#catalog"
                     class="mt-8 bg-[#D4A373] text-white py-3 px-8 rounded-sm hover:bg-opacity-90 transition-colors duration-300 text-sm font-semibold">
                     SHOP NOW
                 </a>
             </div>
         </section>
 
-        <main class="py-16 px-6">
+        @php
+            $formAction = $baseHomeRoute . '#catalog';
+        @endphp
+
+        <main id="catalog" class="py-16 px-6">
             <section class="space-y-6">
                 <div class="max-w-3xl mx-auto">
-                    <form action="#" method="GET"
+                    <form action="{{ $formAction }}" method="GET"
                         class="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-sm border border-gray-200 rounded-full px-6 py-3">
+                        <input type="hidden" name="category" value="{{ $selectedCategory }}">
                         <input id="productSearchInput" type="text" name="search"
-                            placeholder="Search bouquets, gifts, or plants..."
+                            value="{{ $searchTerm ?? '' }}" placeholder="Search bouquets, gifts, or plants..."
                             class="flex-1 w-full bg-transparent focus:outline-none text-sm text-gray-700 placeholder-gray-400">
                         <button type="submit"
                             class="w-full sm:w-auto bg-[#D4A373] text-white text-sm font-semibold tracking-wide py-2 px-6 rounded-full hover:bg-opacity-90 transition-colors duration-200">
@@ -145,39 +157,57 @@
                         </button>
                     </form>
                 </div>
+                @php
+                    $homeRoute = $baseHomeRoute;
+                @endphp
                 <div class="flex flex-wrap justify-center gap-4 text-sm sm:text-base tracking-widest uppercase">
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        All
-                    </button>
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        Bouquets
-                    </button>
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        Plants
-                    </button>
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        Gifts
-                    </button>
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        Seasonal
-                    </button>
-                    <button
-                        class="px-5 py-3 rounded-full border border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373] transition-colors duration-200">
-                        Custom
-                    </button>
+                    @foreach ($categories as $slug => $label)
+                        @php
+                            $queryParams = array_filter(
+                                [
+                                    'search' => $searchTerm,
+                                    'category' => $slug,
+                                ],
+                                fn($value) => $value !== null && $value !== '',
+                            );
+                            $categoryUrl =
+                                $homeRoute . ($queryParams ? '?' . http_build_query($queryParams) : '') . '#catalog';
+                            $isActiveCategory = $selectedCategory === $slug;
+                        @endphp
+                        <a href="{{ $categoryUrl }}"
+                            class="px-5 py-3 rounded-full border transition-colors duration-200 {{ $isActiveCategory ? 'bg-[#D4A373] text-white border-[#D4A373]' : 'border-gray-300 text-gray-700 hover:border-[#D4A373] hover:text-[#D4A373]' }}">
+                            {{ $label }}
+                        </a>
+                    @endforeach
                 </div>
             </section>
 
             <section class="mt-20">
                 <h2 class="text-center text-2xl font-semibold tracking-wider mb-10">OUR PRODUCTS</h2>
-                <div class="flex flex-wrap justify-center gap-4">
-                    @if ($products->count())
-                        @foreach ($products->take(4) as $product)
+                @if ($isSearching || $isFilteringCategory)
+                    <p class="text-center text-sm text-gray-600 mb-6">
+                        Showing {{ $totalResults }} {{ $totalResults === 1 ? 'product' : 'products' }}
+                        @if ($isSearching)
+                            for "{{ $searchTerm }}"
+                        @endif
+                        @if ($isFilteringCategory)
+                            {{ $isSearching ? 'in' : 'for' }} {{ $selectedCategoryLabel }}
+                        @endif
+                    </p>
+                @endif
+
+                @php
+                    $hasFeaturedFallback =
+                        !$isSearching && !$isFilteringCategory && $featuredNamesRemaining->isNotEmpty();
+                @endphp
+
+                @if ($initialProducts->isEmpty() && !$hasFeaturedFallback)
+                    <p class="text-center text-gray-500">
+                        {{ $isSearching ? 'No products found for your search.' : ($isFilteringCategory ? 'No products available in this category yet.' : 'Products coming soon.') }}
+                    </p>
+                @else
+                    <div class="flex flex-wrap justify-center gap-4">
+                        @foreach ($initialProducts as $product)
                             <a href="{{ route('user.products.show', $product->id) }}"
                                 class="group flex flex-col items-center w-52 text-center">
                                 <div class="bg-gray-100 p-3 rounded-lg w-full">
@@ -197,16 +227,113 @@
                                 </div>
                             </a>
                         @endforeach
-                    @else
-                        <p class="text-gray-500">Produk belum tersedia.</p>
-                    @endif
-                </div>
+
+                        @if ($hasFeaturedFallback)
+                            @php
+                                $featuredCollection =
+                                    $featuredProducts instanceof \Illuminate\Support\Collection
+                                        ? $featuredProducts
+                                        : collect($featuredProducts);
+                            @endphp
+                            @foreach ($featuredNamesRemaining as $featuredName)
+                                @php
+                                    $featured = $featuredCollection->get($featuredName);
+                                    $imagePath = $featured?->image_url ?? ($featuredImages[$featuredName] ?? null);
+                                    $priceValue = $featured?->price ?? 50000;
+                                    $formattedPrice = 'Rp' . number_format($priceValue, 0, ',', '.');
+                                    $productLink = $featured ? route('user.products.show', $featured->id) : '#';
+                                    $isClickable = (bool) $featured;
+                                @endphp
+
+                                <a href="{{ $productLink }}"
+                                    class="group flex flex-col items-center w-52 text-center {{ $isClickable ? '' : 'pointer-events-none opacity-60' }}">
+                                    <div class="bg-gray-100 p-3 rounded-lg w-full">
+                                        @if ($imagePath)
+                                            <img src="{{ asset($imagePath) }}" alt="{{ $featuredName }}"
+                                                class="w-full h-48 object-cover rounded-md group-hover:scale-105 transition-transform duration-100" />
+                                        @endif
+                                    </div>
+                                    <h4 class="mt-4 font-medium text-gray-800">{{ $featuredName }}</h4>
+                                    <div class="flex justify-center items-center mt-2 space-x-2">
+                                        <p class="text-gray-600">{{ $formattedPrice }}</p>
+                                        <span class="text-gray-500 group-hover:text-black transition"
+                                            aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.658-.463 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </a>
+                            @endforeach
+                        @endif
+                    </div>
+                @endif
             </section>
         </main>
 
     </div>
 
-    <footer class="bg-[#333333] text-gray-300">
+    <div id="contactModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div role="dialog" aria-modal="true" aria-labelledby="contactTitle"
+            class="bg-white w-full max-w-lg mx-4 rounded-2xl shadow-xl">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 id="contactTitle" class="text-xl font-semibold text-slate-800">Contact Us</h3>
+                <button type="button" id="closeContact"
+                    class="p-2 rounded hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                    aria-label="Close contact dialog">✕</button>
+            </div>
+            <div class="p-6 space-y-4 text-sm text-slate-600">
+                <p>We're happy to help. Reach us via:</p>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <div class="mt-1 text-rose-500">🏬</div>
+                        <div>
+                            <p class="font-medium text-slate-800">Store Address</p>
+                            <p>FSM Undip, Tembalang, Semarang</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="mt-1 text-rose-500">📞</div>
+                        <div>
+                            <p class="font-medium text-slate-800">Phone / WhatsApp</p>
+                            <a href="tel:+6281234567890" class="text-emerald-700 hover:underline">
+                                +62 812-3456-7890</a>
+                            ·
+                            <a href="https://wa.me/6281234567890" target="_blank"
+                                class="text-emerald-700 hover:underline">Chat on WhatsApp</a>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="mt-1 text-rose-500">✉️</div>
+                        <div>
+                            <p class="font-medium text-slate-800">Email</p>
+                            <a href="mailto:floralflorist@gmail.com" class="text-emerald-700 hover:underline">
+                                floralflorist@gmail.com</a>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="mt-1 text-rose-500">📸</div>
+                        <div>
+                            <p class="font-medium text-slate-800">Instagram</p>
+                            <a href="https://instagram.com/florafloristt" target="_blank"
+                                class="text-emerald-700 hover:underline">@florafloristt</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="p-6 border-t flex justify-end">
+                <button type="button" id="okContact"
+                    class="px-5 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-300 transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="bg-[#333333] text-gray-300">
         <div class="max-w-7xl mx-auto py-12 px-6">
             <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
                 <div class="flex items-center space-x-3">
@@ -249,6 +376,10 @@
             const searchTrigger = document.getElementById('navbarSearchTrigger');
             const searchInput = document.getElementById('productSearchInput');
             const mainSection = document.querySelector('main');
+            const contactModal = document.getElementById('contactModal');
+            const openContactBtn = document.getElementById('openContact');
+            const closeContactBtn = document.getElementById('closeContact');
+            const okContactBtn = document.getElementById('okContact');
 
             const closeMenu = () => profileMenu.classList.add('hidden');
 
@@ -289,6 +420,48 @@
                     });
                     if (searchInput) {
                         setTimeout(() => searchInput.focus(), 400);
+                    }
+                });
+            }
+
+            if (contactModal && openContactBtn) {
+                const showContactModal = () => {
+                    contactModal.classList.remove('hidden');
+                    contactModal.classList.add('flex');
+                    const closeButton = closeContactBtn ?? contactModal.querySelector('[data-contact-close]');
+                    if (closeButton) {
+                        closeButton.focus({
+                            preventScroll: true
+                        });
+                    }
+                };
+
+                const hideContactModal = () => {
+                    contactModal.classList.add('hidden');
+                    contactModal.classList.remove('flex');
+                    openContactBtn.focus({
+                        preventScroll: true
+                    });
+                };
+
+                openContactBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showContactModal();
+                });
+
+                [closeContactBtn, okContactBtn]
+                .filter((btn) => btn)
+                    .forEach((btn) => btn.addEventListener('click', hideContactModal));
+
+                contactModal.addEventListener('click', (event) => {
+                    if (event.target === contactModal) {
+                        hideContactModal();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !contactModal.classList.contains('hidden')) {
+                        hideContactModal();
                     }
                 });
             }
