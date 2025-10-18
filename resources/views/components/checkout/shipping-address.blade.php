@@ -2,6 +2,7 @@
 
 <form id="shipping-address-form" action="{{ route('user.checkout.calculate') }}" method="POST" autocomplete="off">
     @csrf
+    <input type="hidden" name="shipping_method" id="shipping_method_input" value="PickUp" />
     <h3 class="text-xl font-bold text-slate-800 mb-4">Alamat Pengiriman</h3>
     <div class="space-y-4">
 
@@ -62,3 +63,16 @@
         Simpan & Cek Ongkos Kirim
     </button>
 </form>
+<script>
+    // Sync hidden shipping_method input with the shipping method radio buttons
+    window.addEventListener('load', () => {
+        const hidden = document.getElementById('shipping_method_input');
+        const pickupRadio = document.getElementById('PickUp');
+        const kurirRadio = document.getElementById('Kurir');
+
+        if (pickupRadio) pickupRadio.addEventListener('change', () => { hidden.value = pickupRadio.value; });
+        if (kurirRadio) kurirRadio.addEventListener('change', () => { hidden.value = kurirRadio.value; });
+        // Set default
+        if (!hidden.value && pickupRadio) hidden.value = pickupRadio.value || 'PickUp';
+    });
+</script>
