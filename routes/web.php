@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,11 +42,8 @@ Route::middleware(['auth', 'role:user'])
         Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
         Route::patch('/cart/deactivate/{id}', [CartController::class, 'deactivate'])->name('cart.deactivate');
 
-        Route::view('/order-history', 'orderHistory')->name('orders.history');
-        Route::view('/order-details', 'orderDetails')->name('orders.details');
-        Route::view('/cart-page', 'cartPage')->name('cart.page');
-        Route::get('/product-detail/{id}', [ProductController::class, 'show'])->name('products.detail');
-        Route::get('/checkout-page', [CheckoutController::class, 'index'])->name('checkout.page');
+        Route::get('/order-history', [OrderController::class, 'index'])->name('orders.history');
+    Route::get('/order-details/{id}', [OrderController::class, 'show'])->name('orders.show');
     });
 
 Route::middleware(['auth', 'role:admin'])
@@ -63,5 +61,7 @@ Route::prefix('api/wilayah')->name('api.wilayah.')->group(function () {
     Route::get('/districts/{city_id}', [WilayahController::class, 'getDistricts']);
     Route::get('/villages/{district_id}', [WilayahController::class, 'getVillages']);
 });
+
+// Route::get('/test', [OrderController::class, 'index']);
 
 require __DIR__.'/auth.php';

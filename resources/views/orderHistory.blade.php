@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    // If the view is rendered directly (e.g. test route) ensure $orders exists to avoid undefined variable errors
+    if (!isset($orders)) {
+        $orders = collect();
+    }
+@endphp
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-6 py-12">
         <div class="flex justify-between items-center mb-6">
@@ -20,117 +26,71 @@
             <table class="w-full text-left">
                 <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
                     <tr>
-                        <th class="py-3 px-6 cursor-pointer sort-header" data-col="id">
+                        <th class="py-3 px-6">
                             Order ID
                         </th>
-                        <th class="py-3 px-6 cursor-pointer sort-header" data-col="date">
+                        <th class="py-3 px-6">
                             Date
                         </th>
-                        <th class="py-3 px-6 cursor-pointer sort-header" data-col="status">
+                        <th class="py-3 px-6">
                             Status
                         </th>
-                        <th class="py-3 px-6 cursor-pointer sort-header" data-col="total">
+                        <th class="py-3 px-6">
                             Total
                         </th>
                         <th class="py-3 px-6">Action</th>
                     </tr>
                 </thead>
                 <tbody id="order-table">
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-4 px-6 font-medium text-gray-800">#FL004</td>
-                        <td class="py-4 px-6 text-gray-700">2025-10-06</td>
-                        <td class="py-4 px-6 text-blue-600 font-semibold">Shipping</td>
-                        <td class="py-4 px-6 text-gray-800">Rp180.000</td>
-                        <td class="py-4 px-6">
-                            <button onclick="alert('Order #FL004 details opened!')" class="text-orange-500 hover:underline">
-                                View Details
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-4 px-6 font-medium text-gray-800">#FL003</td>
-                        <td class="py-4 px-6 text-gray-700">2025-10-02</td>
-                        <td class="py-4 px-6 text-green-600 font-semibold">Delivered</td>
-                        <td class="py-4 px-6 text-gray-800">Rp250.000</td>
-                        <td class="py-4 px-6">
-                            <button onclick="alert('Order #FL003 details opened!')" class="text-orange-500 hover:underline">
-                                View Details
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-4 px-6 font-medium text-gray-800">#FL002</td>
-                        <td class="py-4 px-6 text-gray-700">2025-09-29</td>
-                        <td class="py-4 px-6 text-yellow-600 font-semibold">
-                            Processing
-                        </td>
-                        <td class="py-4 px-6 text-gray-800">Rp95.000</td>
-                        <td class="py-4 px-6">
-                            <button onclick="alert('Order #FL002 details opened!')" class="text-orange-500 hover:underline">
-                                View Details
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="border-t hover:bg-gray-50">
-                        <td class="py-4 px-6 font-medium text-gray-800">#FL001</td>
-                        <td class="py-4 px-6 text-gray-700">2025-09-20</td>
-                        <td class="py-4 px-6 text-red-600 font-semibold">Cancelled</td>
-                        <td class="py-4 px-6 text-gray-800">Rp150.000</td>
-                        <td class="py-4 px-6">
-                            <button onclick="alert('Order #FL001 details opened!')" class="text-orange-500 hover:underline">
-                                View Details
-                            </button>
-                        </td>
-                    </tr>
+                    @forelse ($orders as $order)
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="py-4 px-6 font-medium text-gray-800">#{{ $order->id }}</td>
+                            <td class="py-4 px-6 text-gray-700">{{ $order->created_at->format('Y-m-d') }}</td>
+                            <td class="py-4 px-6 text-gray-800 font-semibold">{{ ucfirst($order->status) }}</td>
+                            <td class="py-4 px-6 text-gray-800">Rp{{ number_format($order->total,0,',','.') }}</td>
+                            <td class="py-4 px-6">
+                                <a href="{{ route('user.orders.show', $order->id) }}" class="text-orange-500 hover:underline">View Details</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="py-6 px-6 text-center text-gray-600" colspan="5">Belum ada pesanan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+        @if(method_exists($orders, 'links'))
+            <div class="mt-4 px-6">
+                {{ $orders->links() }}
+            </div>
+        @endif
     </main>
 @endsection
 
 
 @push('scripts')
-    <!-- Script: Sorting & Filtering -->
+    <!-- Script: Filtering -->
     <script>
         const table = document.getElementById("order-table");
-        const headers = document.querySelectorAll(".sort-header");
         const filter = document.getElementById("order-filter");
 
-        headers.forEach((header) => {
-            header.addEventListener("click", () => {
-                const col = header.dataset.col;
-                const rows = Array.from(table.querySelectorAll("tr"));
-                const asc = !header.classList.contains("asc");
+        if (table && filter) {
+            filter.addEventListener("change", () => {
+                const value = filter.value;
+                Array.from(table.rows).forEach((row) => {
+                    const statusCell = row.cells[2];
 
-                rows.sort((a, b) => {
-                    const aText = a
-                        .querySelector(`[data-col="${col}"]`) ?
-                        a.querySelector(`[data-col="${col}"]`).innerText :
-                        a.children[header.cellIndex].innerText;
-                    const bText = b
-                        .querySelector(`[data-col="${col}"]`) ?
-                        b.querySelector(`[data-col="${col}"]`).innerText :
-                        b.children[header.cellIndex].innerText;
+                    if (!statusCell) {
+                        row.style.display = "";
+                        return;
+                    }
 
-                    return asc ?
-                        aText.localeCompare(bText) :
-                        bText.localeCompare(aText);
+                    const status = statusCell.innerText.trim();
+                    row.style.display =
+                        value === "All Orders" || status === value ? "" : "none";
                 });
-
-                table.innerHTML = "";
-                rows.forEach((row) => table.appendChild(row));
-                headers.forEach((h) => h.classList.remove("asc", "desc"));
-                header.classList.add(asc ? "asc" : "desc");
             });
-        });
-
-        filter.addEventListener("change", () => {
-            const value = filter.value;
-            Array.from(table.rows).forEach((row) => {
-                const status = row.cells[2].innerText.trim();
-                row.style.display =
-                    value === "All Orders" || status === value ? "" : "none";
-            });
-        });
+        }
     </script>
 @endpush
