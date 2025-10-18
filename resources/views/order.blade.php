@@ -38,8 +38,8 @@
                 <tbody class="divide-y">
                     <tr>
                         <td class="py-3 flex items-center gap-2">
-                            <img src="images/lily.jpg" class="w-12 h-12 rounded-md object-cover border"
-                                alt="Lily Bouquet" />
+                            <img src="{{ asset('images/bouquet/lily.jpg') }}"
+                                class="w-12 h-12 rounded-md object-cover border" alt="Lily Bouquet" />
                             <span>Lily Bouquet</span>
                         </td>
                         <td>Processing</td>
@@ -48,7 +48,8 @@
                     </tr>
                     <tr>
                         <td class="py-3 flex items-center gap-2">
-                            <img src="images/mix.jpg" class="w-12 h-12 rounded-md object-cover border" alt="Mix Bouquet" />
+                            <img src="{{ asset('images/bouquet/mix.jpg') }}"
+                                class="w-12 h-12 rounded-md object-cover border" alt="Mix Bouquet" />
                             <span>Mix Bouquet</span>
                         </td>
                         <td>Shipped</td>
@@ -57,8 +58,8 @@
                     </tr>
                     <tr>
                         <td class="py-3 flex items-center gap-2">
-                            <img src="images/rose.jpg" class="w-12 h-12 rounded-md object-cover border"
-                                alt="Seasonal Delivery" />
+                            <img src="{{ asset('images/bouquet/rose.jpg') }}"
+                                class="w-12 h-12 rounded-md object-cover border" alt="Seasonal Delivery" />
                             <span>Rose Bouquet</span>
                         </td>
                         <td>Delivery</td>

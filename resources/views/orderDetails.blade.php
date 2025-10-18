@@ -74,7 +74,8 @@
                     <ul class="divide-y divide-gray-100">
                         <li class="flex items-center justify-between px-5 py-4">
                             <div class="flex items-center gap-3">
-                                <img src="images/tulip.jpg" alt="Tulip Bouquet" class="h-12 w-12 rounded-md object-cover" />
+                                <img src="{{ asset('images/bouquet/tulip.jpg') }}" alt="Tulip Bouquet"
+                                    class="h-12 w-12 rounded-md object-cover" />
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Tulip Bouquet</p>
                                     <p class="text-xs text-gray-500">Hand-crafted seasonal arrangement</p>
