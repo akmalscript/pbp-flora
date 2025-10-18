@@ -29,14 +29,14 @@ class AuthenticatedSessionController extends Controller
         $user = auth()->user();
 
         if ($user->role === 1) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard.view');
         }
 
         if ($user->role === 0) {
             return redirect()->route('user.home');
         }
 
-        return redirect()->route('home.index');
+    return redirect()->route('home');
     }
 
     /**

@@ -9,7 +9,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::view('/home2', 'home2')->name('home2');
+Route::view('/search', 'searchpage')->name('search.page');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,12 +40,21 @@ Route::middleware(['auth', 'role:user'])
         Route::post('/cart/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('cart.applyCoupon');
         Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
         Route::patch('/cart/deactivate/{id}', [CartController::class, 'deactivate'])->name('cart.deactivate');
+
+        Route::view('/order-history', 'orderHistory')->name('orders.history');
+        Route::view('/order-details', 'orderDetails')->name('orders.details');
+        Route::view('/cart-page', 'cartPage')->name('cart.page');
+        Route::get('/product-detail/{id}', [ProductController::class, 'show'])->name('products.detail');
+        Route::get('/checkout-page', [CheckoutController::class, 'index'])->name('checkout.page');
     });
 
 Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::view('/admin-dashboard', 'admindashboard')->name('dashboard.view');
+        Route::view('/manajemen-kategori', 'manajemenkategori')->name('categories.manage');
+        Route::view('/orders-management', 'order')->name('orders.manage');
     });
 
 // API perlu setting khusus agar hanya bisa diakses user
