@@ -24,7 +24,7 @@
             <a href="#catalog" class="hover:text-gray-300 transition">Shop</a>
           </li>
           <li>
-            <a href="#" class="hover:text-gray-300 transition">Cart</a>
+            <a href="{{ route('user.cart.index') }}" class="hover:text-gray-300 transition">Cart</a>
           </li>
           <li>
             <button

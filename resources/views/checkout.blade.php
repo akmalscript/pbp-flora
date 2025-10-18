@@ -4,7 +4,6 @@
 <div class="flex flex-col p-4 max-w-5xl mx-auto">
     <h1 class="font-bold text-4xl p-4">CHECKOUT</h1>
     <div class="flex flex-col md:flex-row md:items-start gap-4 p-4">
-        {{-- Kolom Kiri --}}
         <div class="flex flex-1 flex-col md:flex-[2] gap-4">
             <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                 <x-checkout.shipping-method />
@@ -17,7 +16,6 @@
             <div id="courier-options-container"></div>
         </div>
 
-        {{-- Kolom Kanan --}}
         <div class="flex flex-1 flex-col md:flex-[1] bg-white gap-4 rounded-xl shadow-2xl border border-gray-200 p-4">
             <h1 class='text-2xl font-bold text-gray-800'>Total Pesanan</h1>
             <div>
@@ -25,9 +23,45 @@
                     <x-checkout.order-item :item="$item" />
                 @endforeach
             </div>
+
+            <div class="mt-4 p-4 border rounded-lg bg-gray-50">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-slate-600">Subtotal</span>
+                    <span id="subtotal-display" class="font-semibold text-slate-800">{{ 'Rp ' . number_format($subtotal, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-slate-600">Biaya Pengiriman</span>
+                    <span id="shipping-display" class="font-semibold text-slate-800">{{ 'Rp ' . number_format(0, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-slate-600">Discount</span>
+                    <span id="discount-display" class="font-semibold text-slate-800">{{ $discount > 0 ? '- Rp ' . number_format($discount, 0, ',', '.') : 'Rp 0' }}</span>
+                </div>
+                <div class="mt-3">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Gift card or discount code</label>
+                    <form id="checkout-coupon-form" action="{{ route('user.cart.applyCoupon') }}" method="POST" class="flex gap-3">
+                        @csrf
+                        <input name="coupon" type="text" placeholder="Enter code"
+                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" />
+                        <button type="submit" class="bg-gray-900 text-white px-3 rounded-lg hover:bg-gray-800 transition">Apply</button>
+                    </form>
+                    @error('coupon')
+                        <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+                    @enderror
+                    @if (session('coupon_message'))
+                        <p class="text-sm text-green-600 mt-2">{{ session('coupon_message') }}</p>
+                    @endif
+                </div>
+                <hr class="my-2" />
+                <div class="flex justify-between">
+                    <span class="text-lg font-bold">Total</span>
+                    <span id="total-display" class="text-lg font-bold text-sky-600">{{ 'Rp ' . number_format($subtotal - $discount, 0, ',', '.') }}</span>
+                </div>
+            </div>
+
             <hr class="w-4/5 mx-auto border-t border-gray-500 mt-3" />
-            <button type="submit" form="shipping-address-form" class="bg-yellow-600 text-white font-semibold py-2 rounded w-[240px] mx-auto block hover:bg-yellow-700">
-                Bayar
+            <button id="pay-button" class="bg-yellow-600 text-white font-semibold py-2 rounded w-full">
+                Bayar Sekarang
             </button>
         </div>
     </div>
@@ -36,16 +70,50 @@
 
 @push('scripts')
 <script>
-    // Fungsi ini ditempatkan di luar agar bisa diakses oleh onchange dari komponen Blade
     function toggleShippingAddress(method) {
         const addressContainer = document.getElementById('shipping-address-container');
         if (addressContainer) {
             addressContainer.classList.toggle('hidden', method !== 'Kurir');
         }
+
+        const courierContainer = document.getElementById('courier-options-container');
+        if (courierContainer) courierContainer.innerHTML = '';
+
+        const shippingForm = document.getElementById('shipping-address-form');
+        if (shippingForm) {
+            const sel = shippingForm.querySelector('input[name="selected_courier_service"]');
+            if (sel) sel.remove();
+        }
+
+        if (method.toLowerCase() === 'pickup') {
+            if (typeof window.updateTotals === 'function') window.updateTotals(0);
+            if (courierContainer) {
+                courierContainer.innerHTML = `<div class="p-4 mt-4 text-center text-slate-700">Anda memilih <strong>Ambil di Toko</strong>. Pengambilan gratis (Rp 0).</div>`;
+            }
+        } else {
+            if (typeof window.updateTotals === 'function') window.updateTotals(0);
+        }
     }
 
+    window.addEventListener('load', () => {
+        const pickupRadio = document.getElementById('PickUp');
+        const kurirRadio = document.getElementById('Kurir');
+
+        if (pickupRadio) {
+            pickupRadio.checked = true;
+            toggleShippingAddress('PickUp');
+        }
+
+        [pickupRadio, kurirRadio].forEach(radio => {
+            if (radio) {
+                radio.addEventListener('change', () => {
+                    toggleShippingAddress(radio.value);
+                });
+            }
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
-        // === KONFIGURASI & SELEKSI ELEMEN ===
         const wilayahApiBaseUrl = "{{ url('/api/wilayah') }}";
         const calculateShippingUrl = "{{ route('user.checkout.calculate') }}";
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -60,12 +128,30 @@
             village: document.getElementById('village')
         };
 
-        // Memaksa form untuk selalu kosong saat halaman dimuat
+        const clearCourierSelection = () => {
+            if (courierContainer) courierContainer.innerHTML = '';
+            if (shippingForm) {
+                const sel = shippingForm.querySelector('input[name="selected_courier_service"]');
+                if (sel) sel.remove();
+            }
+            if (typeof updateTotals === 'function') updateTotals(0);
+        };
+
+        ['province','city','district','village'].forEach(k => {
+            const el = selectors[k];
+            if (el) el.addEventListener('change', () => {
+                clearCourierSelection();
+            });
+        });
+
+        const fullAddressEl = document.getElementById('fullAddress');
+        const postalCodeEl = document.getElementById('postalCode');
+        if (fullAddressEl) fullAddressEl.addEventListener('input', clearCourierSelection);
+        if (postalCodeEl) postalCodeEl.addEventListener('input', clearCourierSelection);
+
         if(shippingForm) {
             shippingForm.reset();
         }
-
-        // === FUNGSI-FUNGSI BANTU (HELPERS) ===
 
         const toggleSpinner = (selectId, show) => {
             const spinner = document.getElementById(`${selectId}-spinner`);
@@ -105,32 +191,149 @@
             }
         };
         
-        function displayCourierOptions(cost) {
-            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(cost.cost[0].value);
-            
+    function displayCourierOptions(costs) {
+            const services = Array.isArray(costs) ? costs : [costs];
+
+            if (!services.length) {
+                courierContainer.innerHTML = `<div class="p-4 mt-4 text-center text-slate-600">Tidak ada opsi kurir tersedia.</div>`;
+                return;
+            }
+
+            let itemsHtml = '';
+            services.forEach((cost, idx) => {
+                const price = cost.cost && cost.cost[0] ? cost.cost[0].value : 0;
+                const etd = cost.cost && cost.cost[0] ? cost.cost[0].etd : '-';
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
+                itemsHtml += `
+                    <label class="flex items-center p-4 border-2 rounded-lg mb-3 cursor-pointer hover:bg-slate-50">
+                        <input type="radio" name="selected_courier" value="${idx}" class="mr-4" ${idx === 0 ? 'checked' : ''} />
+                        <div class="flex-grow">
+                            <div class="font-bold text-slate-700">${cost.service} (${cost.description})</div>
+                            <p class="text-sm text-slate-500">Estimasi tiba dalam ${etd} hari.</p>
+                        </div>
+                        <div class="ml-4 text-right font-semibold text-slate-800">${formattedPrice}</div>
+                    </label>
+                `;
+            });
+
             const courierHTML = `
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mt-4 transition-all duration-300 ease-in-out">
                     <h3 class="text-xl font-bold text-slate-800 mb-4">Pilih Jasa Pengiriman</h3>
-                    <div class="flex items-center p-4 border-2 rounded-lg border-sky-500 ring-2 ring-sky-200">
-                        <div class="flex-shrink-0 mr-4">
-                            <img src="{{ asset('images/jne.png') }}" alt="JNE Logo" class="h-6" /> 
+                    <form id="courier-selection-form">
+                        ${itemsHtml}
+                        <div class="mt-3 text-right">
+                            <button type="button" id="confirm-courier-btn" class="bg-sky-600 text-white font-semibold py-2 px-4 rounded">Pilih</button>
                         </div>
-                        <div class="flex-grow">
-                            <span class="font-bold text-slate-700">${cost.service} (${cost.description})</span>
-                            <p class="text-sm text-slate-500">Estimasi tiba dalam ${cost.cost[0].etd} hari.</p>
-                        </div>
-                        <div class="flex-shrink-0 ml-4 text-right">
-                            <span class="font-semibold text-slate-800">${formattedPrice}</span>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             `;
+
             courierContainer.innerHTML = courierHTML;
+
+            document.getElementById('confirm-courier-btn').addEventListener('click', function () {
+                const selectedIdx = document.querySelector('input[name="selected_courier"]:checked').value;
+                const selected = services[selectedIdx];
+
+                if (shippingForm) {
+                    let el = shippingForm.querySelector('input[name="selected_courier_service"]');
+                    if (!el) {
+                        el = document.createElement('input');
+                        el.type = 'hidden';
+                        el.name = 'selected_courier_service';
+                        shippingForm.appendChild(el);
+                    }
+                    el.value = JSON.stringify(selected);
+
+                    courierContainer.innerHTML = `<div class="p-4 mt-4 text-center text-slate-700">Jasa pengiriman <strong>${selected.service}</strong> dipilih. Biaya: <strong>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(selected.cost[0].value)}</strong></div>`;
+
+                    updateTotals(selected.cost[0].value || 0);
+                }
+            });
         }
 
-        // === EVENT LISTENERS ===
+    const subtotalValue = {{ $subtotal ?? 0 }};
+    window.discountValue = {{ $discount ?? 0 }};
+        function formatRupiah(value) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+        }
 
-        // Event listener untuk dropdown wilayah
+        function parseCurrency(str) {
+            if (!str) return 0;
+            const n = Number(String(str).replace(/[^0-9]/g, ''));
+            return isNaN(n) ? 0 : n;
+        }
+
+        function updateTotals(shippingCost) {
+            const subtotalEl = document.getElementById('subtotal-display');
+            const shippingEl = document.getElementById('shipping-display');
+            const totalEl = document.getElementById('total-display');
+            const discountEl = document.getElementById('discount-display');
+
+            if (subtotalEl) subtotalEl.textContent = formatRupiah(subtotalValue);
+
+            let ship = typeof shippingCost !== 'undefined' ? Number(shippingCost) : (shippingEl ? parseCurrency(shippingEl.textContent) : 0);
+            ship = isNaN(ship) ? 0 : ship;
+
+            const dv = Number(window.discountValue || 0);
+
+            if (shippingEl) shippingEl.textContent = formatRupiah(ship || 0);
+            if (discountEl) discountEl.textContent = (dv > 0) ? ('- ' + formatRupiah(dv)) : formatRupiah(0);
+            if (totalEl) totalEl.textContent = formatRupiah((subtotalValue || 0) + (ship || 0) - (dv || 0));
+        }
+
+        window.updateTotals = updateTotals;
+
+        const couponForm = document.getElementById('checkout-coupon-form');
+        if (couponForm) {
+            couponForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const fd = new FormData(this);
+                try {
+                    const res = await fetch(this.action, {
+                        method: 'POST',
+                        body: fd,
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const json = await res.json();
+                    if (!res.ok) {
+                        const err = json.errors && json.errors.coupon ? json.errors.coupon[0] : 'Invalid coupon';
+                        showCouponMessage(err, false);
+                        return;
+                    }
+
+                    const newDiscount = json.discount || 0;
+                    window.discountValue = newDiscount;
+                    const discountEl = document.getElementById('discount-display');
+                    if (discountEl) discountEl.textContent = '- ' + formatRupiah(newDiscount);
+                    updateTotals();
+
+                    showCouponMessage(json.message || 'Coupon applied', true);
+
+                } catch (error) {
+                    console.error('Coupon submit error', error);
+                    showCouponMessage('Terjadi kesalahan saat memproses kupon', false);
+                }
+            });
+        }
+
+        function showCouponMessage(msg, ok = true) {
+            let el = document.getElementById('coupon-msg');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'coupon-msg';
+                el.className = 'mt-2 text-sm';
+                const couponHolder = document.getElementById('checkout-coupon-form');
+                if (couponHolder && couponHolder.parentNode) couponHolder.parentNode.appendChild(el);
+            }
+            el.textContent = msg;
+            el.style.color = ok ? '#059669' : '#dc2626';
+        }
+
         selectors.province.addEventListener('change', async function () {
             resetSelects('city');
             if (this.value) {
@@ -158,7 +361,6 @@
             }
         });
 
-        // Event listener untuk form submit (AJAX)
         if(shippingForm) {
             shippingForm.addEventListener('submit', async function(event) {
                 event.preventDefault(); 
@@ -169,7 +371,15 @@
                 </div>`;
 
                 const formData = new FormData(this);
-                formData.append('shipping_method', 'Kurir');
+                const methodInput = this.querySelector('input[name="shipping_method"]') || document.querySelector('input[name="shipping_method"]');
+                const method = methodInput ? methodInput.value : (document.querySelector('input[name="shipping_method_input"]') ? document.querySelector('input[name="shipping_method_input"]').value : null);
+                if (method) formData.append('shipping_method', method);
+
+                if (method && method.toLowerCase && method.toLowerCase() === 'pickup') {
+                    courierContainer.innerHTML = `<div class="p-4 mt-4 text-center text-slate-700">Anda memilih <strong>Ambil di Toko</strong>. Pengambilan gratis (Rp 0).</div>`;
+                    if (typeof updateTotals === 'function') updateTotals(0);
+                    return;
+                }
 
                 try {
                     const response = await fetch(calculateShippingUrl, {
@@ -198,6 +408,51 @@
             });
         }
     });
+
 </script>
+
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script>
+document.getElementById('pay-button').addEventListener('click', async function() {
+    const total = {{ $subtotal - $discount }};
+    const response = await fetch('{{ route('user.checkout.payment') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            total: total,
+            name: '{{ auth()->user()->name }}',
+            email: '{{ auth()->user()->email }}',
+            phone: '{{ auth()->user()->phone ?? '' }}'
+        })
+    });
+
+    const data = await response.json();
+    if(data.snapToken) {
+        snap.pay(data.snapToken, {
+            onSuccess: function(result){
+                console.log('success', result);
+                window.location.href = "{{ route('user.checkout.success') }}?order_id=" + encodeURIComponent(data.orderId);
+            },
+            onPending: function(result){
+                console.log('pending', result);
+                alert('Pembayaran pending, silakan selesaikan di Midtrans');
+            },
+            onError: function(result){
+                console.log('error', result);
+                alert('Pembayaran gagal: ' + result.status_message);
+            },
+            onClose: function(){
+                alert('Anda menutup popup pembayaran tanpa menyelesaikan pembayaran');
+            }
+        });
+    } else {
+        alert('Gagal membuat transaksi: ' + data.error);
+    }
+});
+</script>
+
 @endpush
 

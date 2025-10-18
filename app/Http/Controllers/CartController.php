@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Product;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,8 +32,9 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->getActiveCart();
-        $cart->load('items.product'); // eager load products
-        return response()->json($cart);
+        $cart->load('products');
+
+        return view('cartPage', compact('cart'));
     }
 
     // Tambah item ke cart
@@ -77,15 +79,49 @@ class CartController extends Controller
         ]);
     }
 
-    // Hapus item dari cart
-    public function destroy($itemId)
+    // Increase quantity
+    public function increase($productId)
     {
-        $item = CartItem::findOrFail($itemId);
-        $item->delete();
+        $cart = $this->getActiveCart();
+        
+        if ($cart->products()->where('product_id', $productId)->exists()) {
+            $currentQuantity = $cart->products()->where('product_id', $productId)->first()->pivot->quantity;
+            $cart->products()->updateExistingPivot($productId, [
+                'quantity' => $currentQuantity + 1
+            ]);
+        }
 
-        return response()->json([
-            'message' => 'Cart item deleted'
-        ]);
+        return redirect()->back()->with('success', 'Quantity increased');
+    }
+
+    // Decrease quantity
+    public function decrease($productId)
+    {
+        $cart = $this->getActiveCart();
+        
+        if ($cart->products()->where('product_id', $productId)->exists()) {
+            $currentQuantity = $cart->products()->where('product_id', $productId)->first()->pivot->quantity;
+            
+            if ($currentQuantity > 1) {
+                $cart->products()->updateExistingPivot($productId, [
+                    'quantity' => $currentQuantity - 1
+                ]);
+            } else {
+                // If quantity would become 0, remove the item instead
+                $cart->products()->detach($productId);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Quantity updated');
+    }
+
+    // Hapus item dari cart
+    public function destroy($productId)
+    {
+        $cart = $this->getActiveCart();
+        $cart->products()->detach($productId);
+
+        return redirect()->back()->with('success', 'Item removed from cart');
     }
 
     // Hapus semua cart (opsional)
@@ -110,4 +146,6 @@ class CartController extends Controller
             'message' => 'Cart deactivated'
         ]);
     }
+
+    
 }
