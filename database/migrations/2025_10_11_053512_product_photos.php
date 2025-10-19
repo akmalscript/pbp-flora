@@ -6,25 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('product_photos', function (Blueprint $table) {
-            $table->uuid('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('url');
+	public function up(): void
+	{
+		// Table product_photos no longer required.
+	}
 
-            $table->primary(['product_id', 'url']);
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('product_photos');
-    }
+	public function down(): void
+	{
+		// Table product_photos no longer required.
+	}
 };

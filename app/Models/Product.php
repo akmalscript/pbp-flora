@@ -16,22 +16,17 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'available',
         'image_url',
         'pre_order_duration',
-        'active',
         'category_id',
+        'stock',
+        'active',
     ];
 
     protected $attributes = [
-        'available' => 0,
+        'stock' => 0,
         'active' => 1,
     ];
-
-    public function photos()
-    {
-        return $this->hasMany(ProductPhoto::class);
-    }
 
     public function category()
     {

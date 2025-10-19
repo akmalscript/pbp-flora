@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Keranjang Belanja')
 
 @section('content')
 <main class="flex-grow max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-12">
@@ -65,41 +67,18 @@
   </section>
 
   <aside class="md:col-span-1">
-    @php
-      $subtotal = $cart->products->sum(fn($product) => $product->pivot->quantity * $product->price);
-      $shipping = $subtotal > 0 ? 20000 : 0;
-      $discount = session('coupon_discount', 0);
-      $total = $subtotal - $discount + $shipping;
-    @endphp
-
     <div class="bg-white rounded-lg shadow p-6 sticky top-24">
-      <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+      <h2 class="text-lg text-center font-semibold mb-4">Total yang harus dibayarkan</h2>
 
-      <div class="flex justify-between text-sm text-gray-600 mb-2">
-        <div>Subtotal</div>
-        <div>Rp {{ number_format($subtotal, 0, ',', '.') }}</div>
-      </div>
-      <div class="flex justify-between text-sm text-gray-600 mb-2">
-        <div>Discount</div>
-        <div>
-          {{ $discount > 0 ? '- Rp ' . number_format($discount, 0, ',', '.') : 'Rp 0' }}
-        </div>
-      </div>
-      <div class="flex justify-between text-sm text-gray-600 mb-4">
-        <div>Shipping estimate</div>
-        <div>Rp {{ number_format($shipping, 0, ',', '.') }}</div>
+      <div class="text-3xl text-center font-bold text-gray-900 tracking-wide mb-6">
+        Rp {{ number_format($cart->products->sum(fn($product) => $product->pivot->quantity * $product->price), 0, ',', '.') }}
       </div>
 
-      <div class="grid grid-cols-2 items-baseline mb-4">
-        <div class="text-sm font-medium">Estimated Total</div>
-        <div class="text-xl font-semibold text-gray-900 text-right tracking-wide">
-          Rp {{ number_format($total, 0, ',', '.') }}
-        </div>
-      </div>
-
-      <form action="{{ route('user.checkout.index') }}" method="GET">
+      <form action="{{ route('user.checkout.index') }}" method="GET" onsubmit="if(this.querySelector('button[type=submit]').disabled){ event.preventDefault(); }">
+        @php $disabled = $cart->products->isEmpty(); @endphp
         <button type="submit"
-                class="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition">
+                @if($disabled) disabled aria-disabled="true" @endif
+                class="w-full py-3 rounded-lg transition {{ $disabled ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-orange-500 text-white hover:bg-orange-600' }}">
           Checkout
         </button>
       </form>

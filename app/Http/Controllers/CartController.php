@@ -83,13 +83,38 @@ class CartController extends Controller
     public function increase($productId)
     {
         $cart = $this->getActiveCart();
-        
-        if ($cart->products()->where('product_id', $productId)->exists()) {
-            $currentQuantity = $cart->products()->where('product_id', $productId)->first()->pivot->quantity;
-            $cart->products()->updateExistingPivot($productId, [
-                'quantity' => $currentQuantity + 1
-            ]);
+        $cartItem = $cart->products()->where('product_id', $productId)->first();
+
+        if (! $cartItem) {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan di keranjang.');
         }
+
+        $product = Product::find($productId);
+
+        if (! $product || (int) $product->stock <= 0) {
+            $cart->products()->detach($productId);
+
+            return redirect()->back()->with('error', 'Produk sudah tidak tersedia. Item dihapus dari keranjang.');
+        }
+
+        $currentQuantity = (int) ($cartItem->pivot->quantity ?? 0);
+        $availableStock = (int) $product->stock;
+
+        if ($currentQuantity >= $availableStock) {
+            if ($currentQuantity > $availableStock) {
+                $cart->products()->updateExistingPivot($productId, [
+                    'quantity' => $availableStock,
+                ]);
+
+                return redirect()->back()->with('warning', 'Jumlah produk di keranjang disesuaikan dengan stok tersedia.');
+            }
+
+            return redirect()->back()->with('warning', 'Jumlah produk di keranjang sudah mencapai stok tersedia.');
+        }
+
+        $cart->products()->updateExistingPivot($productId, [
+            'quantity' => $currentQuantity + 1,
+        ]);
 
         return redirect()->back()->with('success', 'Quantity increased');
     }
@@ -98,21 +123,45 @@ class CartController extends Controller
     public function decrease($productId)
     {
         $cart = $this->getActiveCart();
-        
-        if ($cart->products()->where('product_id', $productId)->exists()) {
-            $currentQuantity = $cart->products()->where('product_id', $productId)->first()->pivot->quantity;
-            
-            if ($currentQuantity > 1) {
-                $cart->products()->updateExistingPivot($productId, [
-                    'quantity' => $currentQuantity - 1
-                ]);
-            } else {
-                // If quantity would become 0, remove the item instead
-                $cart->products()->detach($productId);
-            }
+        $cartItem = $cart->products()->where('product_id', $productId)->first();
+
+        if (! $cartItem) {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan di keranjang.');
         }
 
-        return redirect()->back()->with('success', 'Quantity updated');
+        $product = Product::find($productId);
+        $currentQuantity = (int) ($cartItem->pivot->quantity ?? 0);
+
+        if (! $product || (int) $product->stock <= 0) {
+            $cart->products()->detach($productId);
+
+            return redirect()->back()->with('warning', 'Produk dihapus dari keranjang karena stok habis.');
+        }
+
+        if ($currentQuantity <= 1) {
+            $cart->products()->detach($productId);
+
+            return redirect()->back()->with('success', 'Item removed from cart');
+        }
+
+        $availableStock = (int) $product->stock;
+        $newQuantity = max(1, min($currentQuantity - 1, $availableStock));
+
+        if ($newQuantity < 1) {
+            $cart->products()->detach($productId);
+
+            return redirect()->back()->with('success', 'Item removed from cart');
+        }
+
+        $cart->products()->updateExistingPivot($productId, [
+            'quantity' => $newQuantity,
+        ]);
+
+        $message = $newQuantity < $currentQuantity - 1
+            ? 'Kuantitas produk disesuaikan dengan stok tersedia.'
+            : 'Quantity updated';
+
+        return redirect()->back()->with('success', $message);
     }
 
     // Hapus item dari cart

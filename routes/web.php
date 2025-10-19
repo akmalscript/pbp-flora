@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\Admin\CatalogController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,11 +44,8 @@ Route::middleware(['auth', 'role:user'])
         Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
         Route::patch('/cart/deactivate/{id}', [CartController::class, 'deactivate'])->name('cart.deactivate');
 
-        Route::view('/order-history', 'orderHistory')->name('orders.history');
-        Route::view('/order-details', 'orderDetails')->name('orders.details');
-        Route::view('/cart-page', 'cartPage')->name('cart.page');
-        Route::get('/product-detail/{id}', [ProductController::class, 'show'])->name('products.detail');
-        Route::get('/checkout-page', [CheckoutController::class, 'index'])->name('checkout.page');
+        Route::get('/order-history', [OrderController::class, 'index'])->name('orders.history');
+    Route::get('/order-details/{id}', [OrderController::class, 'show'])->name('orders.show');
     });
 
 Route::middleware(['auth', 'role:admin'])
@@ -54,7 +54,16 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::view('/admin-dashboard', 'admindashboard')->name('dashboard.view');
         Route::view('/manajemen-kategori', 'manajemenkategori')->name('categories.manage');
+        Route::get('/manajemen-katalog', [CatalogController::class, 'index'])->name('catalog.manage');
         Route::view('/orders-management', 'order')->name('orders.manage');
+        Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
+        Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/admin/products/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/admin/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('/admin/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('/admin/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/admin/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
     });
 
 // API perlu setting khusus agar hanya bisa diakses user

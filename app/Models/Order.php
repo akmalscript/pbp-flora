@@ -17,6 +17,7 @@ class Order extends Model
         'total',
         'delivery',
         'address',
+        'courier_service',
         'user_id',
     ];
 

@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.public')
+
+@section('title', 'Checkout')
 
 @section('content')
 <div class="flex flex-col p-4 max-w-5xl mx-auto">
@@ -42,7 +44,7 @@
                     <form id="checkout-coupon-form" action="{{ route('user.cart.applyCoupon') }}" method="POST" class="flex gap-3">
                         @csrf
                         <input name="coupon" type="text" placeholder="Enter code"
-                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" />
+                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" autocomplete="off"/>
                         <button type="submit" class="bg-gray-900 text-white px-3 rounded-lg hover:bg-gray-800 transition">Apply</button>
                     </form>
                     @error('coupon')
@@ -59,8 +61,17 @@
                 </div>
             </div>
 
+            <div class="mt-4">
+                <label for="order-note" class="block text-sm font-medium text-slate-700 mb-2">Catatan untuk penjual (opsional)</label>
+                <textarea id="order-note" name="note" rows="3" placeholder="Contoh: Tolong sertakan kartu ucapan."
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"></textarea>
+            </div>
+
             <hr class="w-4/5 mx-auto border-t border-gray-500 mt-3" />
-            <button id="pay-button" class="bg-yellow-600 text-white font-semibold py-2 rounded w-full">
+            @php $payDisabled = ($subtotal <= 0 || empty($orderItems)); @endphp
+            <button id="pay-button" type="button" 
+                    @if($payDisabled) disabled aria-disabled="true" @endif
+                    class="w-full py-2 rounded font-semibold transition {{ $payDisabled ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-yellow-600 text-white' }}">
                 Bayar Sekarang
             </button>
         </div>
@@ -253,7 +264,6 @@
         }
 
     const subtotalValue = {{ $subtotal ?? 0 }};
-    window.discountValue = {{ $discount ?? 0 }};
         function formatRupiah(value) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
         }
@@ -415,21 +425,185 @@
 <script>
 document.getElementById('pay-button').addEventListener('click', async function() {
     const total = {{ $subtotal - $discount }};
+    // collect optional fields: note and shipping info if available (read from shipping-address component)
+    const noteEl = document.getElementById('order-note');
+    const shippingForm = document.getElementById('shipping-address-form');
+    let selectedCourierService = null;
+    // prefer checked radio for shipping method, fallback to hidden input used by the component
+    let shippingMethod = (document.querySelector('input[name="shipping_method"]:checked') ? document.querySelector('input[name="shipping_method"]:checked').value : null) || (document.getElementById('shipping_method_input') ? document.getElementById('shipping_method_input').value : null);
+
+    // build a single comma-separated address string (fullAddress, village, district, city, province, postalCode)
+    let concatenatedAddress = '';
+    const selectLabel = (name) => {
+        if (!shippingForm) return '';
+        const el = shippingForm.querySelector('[name="' + name + '"]');
+        if (!el || el.tagName !== 'SELECT') return '';
+        if (!el.value) return '';
+        const opt = el.options[el.selectedIndex];
+        return opt ? (opt.text || '').trim() : '';
+    };
+    if (shippingForm) {
+        const getVal = (name) => {
+            const el = shippingForm.querySelector('[name="' + name + '"]');
+            return el ? (el.value || '').trim() : '';
+        };
+
+        const parts = [];
+        const fullAddr = getVal('fullAddress') || (document.getElementById('fullAddress') ? document.getElementById('fullAddress').value : '');
+        if (fullAddr) parts.push(fullAddr.trim());
+
+        const villageName = selectLabel('village'); if (villageName) parts.push(villageName);
+        const districtName = selectLabel('district'); if (districtName) parts.push(districtName);
+        const cityName = selectLabel('city'); if (cityName) parts.push(cityName);
+        const provinceName = selectLabel('province'); if (provinceName) parts.push(provinceName);
+
+        const postal = getVal('postalCode') || (document.getElementById('postalCode') ? document.getElementById('postalCode').value : '');
+        if (postal) parts.push(postal);
+
+        concatenatedAddress = parts.filter(p => p && String(p).trim() !== '').join(', ');
+
+        const svc = shippingForm.querySelector('input[name="selected_courier_service"]');
+        if (svc) {
+            try { selectedCourierService = JSON.parse(svc.value); } catch (e) { selectedCourierService = svc.value; }
+        }
+    }
+
+    const payload = {
+        total: total,
+        name: '{{ auth()->user()->name }}',
+        email: '{{ auth()->user()->email }}',
+        phone: '{{ auth()->user()->phone ?? '' }}',
+        note: (noteEl && noteEl.value) ? noteEl.value : '',
+        address: concatenatedAddress,
+        selected_courier_service: selectedCourierService ? JSON.stringify(selectedCourierService) : null,
+        shipping_method: shippingMethod
+    };
+
+    if (shippingForm) {
+        const getVal = (name) => {
+            const el = shippingForm.querySelector('[name="' + name + '"]');
+            return el ? (el.value || '').trim() : '';
+        };
+
+        payload.fullAddress = getVal('fullAddress');
+        payload.postalCode = getVal('postalCode');
+        payload.province = getVal('province');
+        payload.city = getVal('city');
+        payload.district = getVal('district');
+        payload.village = getVal('village');
+        payload.province_label = selectLabel('province');
+        payload.city_label = selectLabel('city');
+        payload.district_label = selectLabel('district');
+        payload.village_label = selectLabel('village');
+    }
+
+    const escapeHtml = (value) => {
+        if (typeof value !== 'string') {
+            return value;
+        }
+
+        return value.replace(/[&<>"']/g, (char) => {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+            };
+
+            return map[char] || char;
+        });
+    };
+
+    const showAlert = (options = {}, onClose) => {
+        const {
+            title = 'Informasi',
+            text = '',
+            html = '',
+            icon = 'info',
+            confirmButtonText = 'OK',
+        } = options;
+
+        if (typeof window.Swal !== 'undefined') {
+            Swal.fire({
+                title,
+                text: html ? undefined : text,
+                html: html || undefined,
+                icon,
+                confirmButtonText,
+            }).then(() => {
+                if (typeof onClose === 'function') {
+                    onClose();
+                }
+            });
+
+            return;
+        }
+
+        const fallbackMessage = html
+            ? html.replace(/<br\s*\/?>(\s|$)/gi, '\n').replace(/<[^>]*>/g, '')
+            : (text || title);
+
+        alert(fallbackMessage);
+
+        if (typeof onClose === 'function') {
+            onClose();
+        }
+    };
+
     const response = await fetch('{{ route('user.checkout.payment') }}', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            total: total,
-            name: '{{ auth()->user()->name }}',
-            email: '{{ auth()->user()->email }}',
-            phone: '{{ auth()->user()->phone ?? '' }}'
-        })
+        body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        console.error('Failed to parse checkout response', error);
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: Terjadi kesalahan tak terduga.',
+            icon: 'error',
+        });
+        return;
+    }
+
+    if (!response.ok) {
+        if (data && data.redirect) {
+            const baseMessage = data.error || 'Perubahan stok terdeteksi.';
+            let htmlMessage = `<p>${escapeHtml(baseMessage)}</p>`;
+
+            if (Array.isArray(data.adjustments) && data.adjustments.length) {
+                const items = data.adjustments
+                    .map((item) => `<li>${escapeHtml(item)}</li>`)
+                    .join('');
+                htmlMessage += `<ul class="text-left mt-3 space-y-1">${items}</ul>`;
+            }
+
+            showAlert({
+                title: 'Perubahan Stok',
+                html: htmlMessage,
+                icon: 'warning',
+                confirmButtonText: 'Kembali ke Keranjang',
+            }, () => {
+                window.location.href = data.redirect;
+            });
+            return;
+        }
+
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: ' + (data && data.error ? data.error : 'Perubahan stok terdeteksi.'),
+            icon: 'error',
+        });
+        return;
+    }
+
     if(data.snapToken) {
         snap.pay(data.snapToken, {
             onSuccess: function(result){
@@ -438,18 +612,34 @@ document.getElementById('pay-button').addEventListener('click', async function()
             },
             onPending: function(result){
                 console.log('pending', result);
-                alert('Pembayaran pending, silakan selesaikan di Midtrans');
+                showAlert({
+                    title: 'Pembayaran Pending',
+                    text: 'Pembayaran pending, silakan selesaikan di Midtrans.',
+                    icon: 'info',
+                });
             },
             onError: function(result){
                 console.log('error', result);
-                alert('Pembayaran gagal: ' + result.status_message);
+                showAlert({
+                    title: 'Pembayaran Gagal',
+                    text: 'Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi.'),
+                    icon: 'error',
+                });
             },
             onClose: function(){
-                alert('Anda menutup popup pembayaran tanpa menyelesaikan pembayaran');
+                showAlert({
+                    title: 'Pembayaran Belum Selesai',
+                    text: 'Anda menutup popup pembayaran tanpa menyelesaikan pembayaran.',
+                    icon: 'warning',
+                });
             }
         });
     } else {
-        alert('Gagal membuat transaksi: ' + data.error);
+        showAlert({
+            title: 'Checkout Error',
+            text: 'Gagal membuat transaksi: ' + data.error,
+            icon: 'error',
+        });
     }
 });
 </script>

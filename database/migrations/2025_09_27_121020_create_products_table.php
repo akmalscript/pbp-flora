@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name', 32);
             $table->string('description', 255);
             $table->integer('price');
-            $table->boolean('available');
+            $table->unsignedInteger('stock')->default(0);
             $table->string('image_url');
             $table->integer('pre_order_duration');
             $table->boolean('active')->default(1);
