@@ -135,7 +135,7 @@
             @endif
         </section>
     </main>
-    <a href="https://wa.link/dxxq70" target="_blank" rel="noopener"
+    <a href="https://wa.link/4tyj7q" target="_blank" rel="noopener"
         class="fixed bottom-6 right-6 z-30 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] text-white shadow-lg hover:scale-105 transition-transform"
         aria-label="Chat via WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="w-11 h-11" fill="currentColor" role="img"

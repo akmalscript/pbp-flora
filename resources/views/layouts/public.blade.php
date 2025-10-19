@@ -163,10 +163,10 @@
                         <div class="mt-1 text-rose-500">📞</div>
                         <div>
                             <p class="font-medium text-slate-800">Phone / WhatsApp</p>
-                            <a href="tel:+6281234567890" class="text-emerald-700 hover:underline">
-                                +62 812-3456-7890</a>
+                            <a href="tel:+62878-2533-4959" class="text-emerald-700 hover:underline">
+                                +62 878-2533-4959</a>
                             ·
-                            <a href="https://wa.me/6281234567890" target="_blank"
+                            <a href="https://wa.me/6287825334959" target="_blank"
                                 class="text-emerald-700 hover:underline">Chat on WhatsApp</a>
                         </div>
                     </li>
