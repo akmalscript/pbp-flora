@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\ProfileController;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/home2', 'home2')->name('home2');
 Route::view('/search', 'searchpage')->name('search.page');
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -45,14 +45,14 @@ Route::middleware(['auth', 'role:user'])
         Route::patch('/cart/deactivate/{id}', [CartController::class, 'deactivate'])->name('cart.deactivate');
 
         Route::get('/order-history', [OrderController::class, 'index'])->name('orders.history');
-    Route::get('/order-details/{id}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('/order-details/{id}', [OrderController::class, 'show'])->name('orders.show');
     });
 
 Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::view('/admin-dashboard', 'admindashboard')->name('dashboard.view');
+        Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.view');
         Route::view('/manajemen-kategori', 'manajemenkategori')->name('categories.manage');
         Route::get('/manajemen-katalog', [CatalogController::class, 'index'])->name('catalog.manage');
         Route::view('/orders-management', 'order')->name('orders.manage');

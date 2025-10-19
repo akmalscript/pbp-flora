@@ -53,7 +53,7 @@
       <div class="flex items-center gap-4 mb-8">
         <div class="flex items-center border rounded-lg">
           <button type="button" id="decrease" class="px-4 py-2 text-xl hover:bg-gray-100" {{ $availableStock === 0 ? 'disabled' : '' }}>-</button>
-                    <input id="quantity" name="quantity" type="number" value="{{ $availableStock > 0 ? 1 : 0 }}" readonly data-max="{{ $availableStock }}" min="{{ $availableStock > 0 ? 1 : 0 }}" max="{{ $availableStock }}" class="w-12 text-center border-x outline-none text-lg {{ $availableStock === 0 ? 'text-gray-400' : '' }}" />
+                    <input id="quantity" name="quantity" type="number" value="{{ $availableStock > 0 ? 1 : 0 }}" readonly data-max="{{ $availableStock }}" min="{{ $availableStock > 0 ? 1 : 0 }}" max="{{ $availableStock }}" class="no-spinner w-12 text-center border-x outline-none text-lg {{ $availableStock === 0 ? 'text-gray-400' : '' }}" />
           <button type="button" id="increase" class="px-4 py-2 text-xl hover:bg-gray-100" {{ $availableStock === 0 ? 'disabled' : '' }}>+</button>
         </div>
         <button type="submit" class="px-8 py-3 rounded-lg text-sm font-medium transition {{ $availableStock === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-500 text-white hover:bg-orange-600' }}" {{ $availableStock === 0 ? 'disabled' : '' }}>

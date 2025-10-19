@@ -18,7 +18,17 @@
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-        @includeIf('layouts.navigation')
+        @php
+            $currentRouteName = request()->route()?->getName();
+            $isAdminRoute = $currentRouteName && str_starts_with($currentRouteName, 'admin.');
+            $isAdminUser = auth()->check() && (int) auth()->user()->role === 1;
+        @endphp
+
+        @if ($isAdminRoute && $isAdminUser)
+            @includeIf('layouts.admin-navigation')
+        @else
+            @includeIf('layouts.navigation')
+        @endif
 
         <!-- Page Heading -->
         @isset($header)
@@ -31,7 +41,7 @@
 
         <!-- Page Content -->
         <main>
-            @yield('content')
+            @yield('content', $slot ?? '')
         </main>
     </div>
     @stack('scripts')
