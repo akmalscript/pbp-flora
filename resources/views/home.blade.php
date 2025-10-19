@@ -28,11 +28,11 @@
         <section class="space-y-6">
             <div class="max-w-3xl mx-auto">
                 <form action="{{ $formAction }}" method="GET"
-                    class="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-sm border border-gray-200 rounded-full px-6 py-3">
+                    class="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-sm border border-gray-200 rounded-full px-6 py-3 focus-within:border-[#D4A373] focus-within:shadow-md focus-within:outline-none">
                     <input type="hidden" name="category" value="{{ $selectedCategory }}">
                     <input id="productSearchInput" type="text" name="search" value="{{ $searchTerm ?? '' }}"
                         placeholder="Search bouquets, gifts, or plants..."
-                        class="flex-1 w-full bg-transparent focus:outline-none text-sm text-gray-700 placeholder-gray-400">
+                        class="flex-1 w-full bg-transparent border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:outline-none focus-visible:ring-0 text-sm text-gray-700 placeholder-gray-400">
                     <button type="submit"
                         class="w-full sm:w-auto bg-[#D4A373] text-white text-sm font-semibold tracking-wide py-2 px-6 rounded-full hover:bg-opacity-90 transition-colors duration-200">
                         SEARCH

@@ -48,24 +48,25 @@
                         class="w-10 h-10 object-cover rounded-full">
                     <span class="text-base font-semibold tracking-[0.3em] text-gray-900">FLORA</span>
                 </div>
-                <nav class="flex items-center space-x-8 uppercase tracking-wider text-[#d81b60]">
-                    <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-900 transition-colors">Home</a>
-                    <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-900 transition-colors">Shop</a>
-                    <button type="button" id="openContact"
-                        class="hover:text-gray-900 transition-colors focus:outline-none">CONTACT</button>
-                </nav>
                 <div class="flex items-center space-x-5 text-gray-600">
+                    <nav class="flex items-center space-x-8 uppercase tracking-wider text-[#d81b60]">
+                        <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-900 transition-colors">Home</a>
+                        <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-900 transition-colors">Shop</a>
+                        <button type="button" id="openContact"
+                            class="hover:text-gray-900 transition-colors focus:outline-none">CONTACT</button>
+                    </nav>
                     @hasSection('show_home_search')
                         <button type="button" id="navbarSearchTrigger" class="hover:text-gray-900 transition-colors"
                             aria-label="Search">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-5 h-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                             </svg>
                         </button>
                     @endif
-                    <a href="{{ route('user.cart.index') }}" class="hover:text-gray-900 transition-colors" aria-label="Cart">
+                    <a href="{{ route('user.cart.index') }}" class="hover:text-gray-900 transition-colors"
+                        aria-label="Cart">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -189,37 +190,9 @@
     </div>
 
     <footer id="contact" class="bg-[#333333] text-gray-300 mt-auto">
-        <div class="max-w-7xl mx-auto py-12 px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
-                <div class="flex items-center space-x-3">
-                    <img src="{{ asset('images/flora_logo3.jpg') }}" alt="Flora logo" class="h-10 object-contain">
-                </div>
-                <nav class="flex space-x-8 text-sm uppercase tracking-wider">
-                    <a href="#" class="hover:text-white">About Us</a>
-                    <a href="#" class="hover:text-white">Contact</a>
-                    <a href="#" class="hover:text-white">Shipping</a>
-                </nav>
-                <div class="flex space-x-6">
-                    <a href="#" class="hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z" />
-                        </svg>
-                    </a>
-                    <a href="#" class="hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616v.064c0 2.299 1.634 4.217 3.793 4.65-1.073.291-2.235.233-3.234-.04 1.684 2.409 4.404 3.492 7.03 3.53-2.053 1.611-4.648 2.529-7.34 2.164 2.138 1.393 4.67 2.208 7.398 2.208 8.868 0 13.725-7.348 13.4-13.778.948-.682 1.77-1.534 2.423-2.502z" />
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
         <div class="border-t border-gray-700">
-            <div class="max-w-7xl mx-auto py-3 px-6 text-center text-xs text-gray-400">
-                <p>&copy; 2024. All rights reserved.</p>
+            <div class="max-w-7xl mx-auto py-10 px-6 text-center text-sm text-gray-200">
+                <p>Copyright &copy; 2025 FLORA. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -305,7 +278,7 @@
                 });
 
                 [closeContactBtn, okContactBtn]
-                    .filter((btn) => btn)
+                .filter((btn) => btn)
                     .forEach((btn) => btn.addEventListener('click', hideContactModal));
 
                 contactModal.addEventListener('click', (event) => {
