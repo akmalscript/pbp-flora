@@ -49,14 +49,17 @@
                     <span class="text-base font-semibold tracking-[0.3em] text-gray-900">FLORA</span>
                 </div>
                 <div class="flex items-center space-x-5 text-gray-600">
-                    <nav class="flex items-center space-x-8 uppercase tracking-wider text-[#d81b60]">
-                        <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-900 transition-colors">Home</a>
-                        <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-900 transition-colors">Shop</a>
+                    <nav class="flex items-center space-x-8 uppercase tracking-wider text-gray-900">
+                        <a href="{{ $baseHomeRoute }}#top"
+                            class="relative py-1 text-gray-700 transition-colors duration-200 hover:text-[#D4A373] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100">Home</a>
+                        <a href="{{ $baseHomeRoute }}#catalog"
+                            class="relative py-1 text-gray-700 transition-colors duration-200 hover:text-[#D4A373] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100">Shop</a>
                         <button type="button" id="openContact"
-                            class="hover:text-gray-900 transition-colors focus:outline-none">CONTACT</button>
+                            class="relative py-1 text-gray-700 transition-colors duration-200 hover:text-[#D4A373] focus:outline-none after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100">CONTACT</button>
                     </nav>
                     @hasSection('show_home_search')
-                        <button type="button" id="navbarSearchTrigger" class="hover:text-gray-900 transition-colors"
+                        <button type="button" id="navbarSearchTrigger"
+                            class="relative flex items-center justify-center text-gray-600 transition-colors duration-200 hover:text-[#D4A373] focus:outline-none after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100"
                             aria-label="Search">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -65,7 +68,8 @@
                             </svg>
                         </button>
                     @endif
-                    <a href="{{ route('user.cart.index') }}" class="hover:text-gray-900 transition-colors"
+                    <a href="{{ route('user.cart.index') }}"
+                        class="relative flex items-center justify-center text-gray-600 transition-colors duration-200 hover:text-[#D4A373] after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100"
                         aria-label="Cart">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
@@ -76,26 +80,30 @@
                     <div class="relative">
                         @if (Route::has('login'))
                             <button type="button" id="profileDropdownButton"
-                                class="flex items-center space-x-2 hover:text-gray-900 transition-colors focus:outline-none"
+                                class="group relative flex items-center space-x-2 text-gray-600 transition-colors duration-200 hover:text-[#D4A373] focus:outline-none after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#D4A373] after:transition-transform after:duration-200 after:content-[''] hover:after:scale-x-100"
                                 aria-haspopup="true" aria-expanded="false">
                                 @auth
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-[#d81b60]">
+                                        stroke-width="1.5" stroke="currentColor"
+                                        class="w-5 h-5 text-[#d81b60] transition-colors duration-200 group-hover:text-[#D4A373]">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a8.25 8.25 0 0 1 15 0" />
                                     </svg>
-                                    <span class="font-semibold text-gray-700">{{ Auth::user()->name }}</span>
+                                    <span
+                                        class="font-semibold text-gray-700 transition-colors duration-200 group-hover:text-[#D4A373]">{{ Auth::user()->name }}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none"
                                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
                                     </svg>
                                 @else
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        stroke-width="1.5" stroke="currentColor"
+                                        class="w-5 h-5 transition-colors duration-200 group-hover:text-[#D4A373]">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a8.25 8.25 0 0 1 15 0" />
                                     </svg>
-                                    <span class="uppercase tracking-wider text-xs">Account</span>
+                                    <span
+                                        class="uppercase tracking-wider text-xs transition-colors duration-200 group-hover:text-[#D4A373]">Account</span>
                                 @endauth
                             </button>
 
