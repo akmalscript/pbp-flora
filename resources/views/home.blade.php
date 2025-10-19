@@ -7,25 +7,22 @@
 @section('content')
     @php
         $baseHomeRoute = request()->routeIs('user.home') ? route('user.home') : route('home');
-    @endphp
-
-    <section class="relative bg-cover bg-center h-[500px] text-white"
-            style="background-image: url('images/homepage_1.jpg')">
-            <div class="absolute inset-0 bg-black bg-opacity-35"></div>
-            <div class="relative h-full flex flex-col justify-center items-start max-w-xl px-12">
-                <h1 class="text-5xl font-bold leading-tight drop-shadow-lg">FRESH BLOOMS & GORGEOUS GIFTS</h1>
-                <p class="mt-4 text-lg text-white/90 drop-shadow">Discover Your Perfect Arrangement</p>
-                <a href="#catalog"
-                    class="mt-8 bg-[#D4A373] text-white py-3 px-8 rounded-sm hover:bg-opacity-90 transition-colors duration-300 text-sm font-semibold">
-                    SHOP NOW
-                </a>
-            </div>
-        </section>
-
-    @php
         $formAction = $baseHomeRoute . '#catalog';
         $homeRoute = $baseHomeRoute;
     @endphp
+
+    <section class="relative bg-cover bg-center h-[500px] text-white"
+        style="background-image: url('{{ asset('images/homepage_1.jpg') }}')">
+        <div class="absolute inset-0 bg-black bg-opacity-35"></div>
+        <div class="relative h-full flex flex-col justify-center items-start max-w-xl px-12">
+            <h1 class="text-5xl font-bold leading-tight drop-shadow-lg">FRESH BLOOMS &amp; GORGEOUS GIFTS</h1>
+            <p class="mt-4 text-lg text-white/90 drop-shadow">Discover Your Perfect Arrangement</p>
+            <a href="#catalog"
+                class="mt-8 bg-[#D4A373] text-white py-3 px-8 rounded-sm hover:bg-opacity-90 transition-colors duration-300 text-sm font-semibold">
+                SHOP NOW
+            </a>
+        </div>
+    </section>
 
     <main id="catalog" class="py-16 px-6">
         <section class="space-y-6">
@@ -33,8 +30,8 @@
                 <form action="{{ $formAction }}" method="GET"
                     class="flex flex-col sm:flex-row items-center gap-3 bg-white shadow-sm border border-gray-200 rounded-full px-6 py-3">
                     <input type="hidden" name="category" value="{{ $selectedCategory }}">
-                    <input id="productSearchInput" type="text" name="search"
-                        value="{{ $searchTerm ?? '' }}" placeholder="Search bouquets, gifts, or plants..."
+                    <input id="productSearchInput" type="text" name="search" value="{{ $searchTerm ?? '' }}"
+                        placeholder="Search bouquets, gifts, or plants..."
                         class="flex-1 w-full bg-transparent focus:outline-none text-sm text-gray-700 placeholder-gray-400">
                     <button type="submit"
                         class="w-full sm:w-auto bg-[#D4A373] text-white text-sm font-semibold tracking-wide py-2 px-6 rounded-full hover:bg-opacity-90 transition-colors duration-200">
@@ -88,9 +85,16 @@
                         @php
                             $wrapperClasses = $card['is_clickable']
                                 ? ''
-                                : ($card['is_placeholder'] ? 'pointer-events-none opacity-60' : 'pointer-events-none');
-                            $imageHoverClass = $card['is_clickable'] && ! $card['is_out_of_stock'] ? 'group-hover:scale-105' : '';
-                            $iconClass = $card['is_out_of_stock'] ? 'opacity-50' : ($card['is_clickable'] ? 'group-hover:text-black transition' : '');
+                                : ($card['is_placeholder']
+                                    ? 'pointer-events-none opacity-60'
+                                    : 'pointer-events-none');
+                            $imageHoverClass =
+                                $card['is_clickable'] && !$card['is_out_of_stock'] ? 'group-hover:scale-105' : '';
+                            $iconClass = $card['is_out_of_stock']
+                                ? 'opacity-50'
+                                : ($card['is_clickable']
+                                    ? 'group-hover:text-black transition'
+                                    : '');
                             $priceLabel = 'Rp' . number_format($card['price'], 0, ',', '.');
                         @endphp
 
@@ -98,13 +102,14 @@
                             class="group flex flex-col items-center w-52 text-center {{ $wrapperClasses }}">
                             <div
                                 class="relative bg-gray-100 p-3 rounded-lg w-full overflow-hidden {{ $card['is_out_of_stock'] ? 'opacity-60' : '' }}">
-                                @if (! empty($card['image_url']))
+                                @if (!empty($card['image_url']))
                                     <img src="{{ $card['image_url'] }}" alt="{{ $card['name'] }}"
                                         class="w-full h-48 object-cover rounded-md transition-transform duration-100 {{ $imageHoverClass }}" />
                                 @endif
                                 @if ($card['is_out_of_stock'])
                                     <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                        <span class="text-white text-sm font-semibold tracking-wider uppercase">Stok Habis</span>
+                                        <span class="text-white text-sm font-semibold tracking-wider uppercase">Stok
+                                            Habis</span>
                                     </div>
                                 @endif
                             </div>
