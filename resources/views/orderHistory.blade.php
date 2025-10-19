@@ -17,8 +17,11 @@
                 <select id="order-filter"
                     class="border border-gray-300 rounded-md py-2 pl-3 pr-10 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400">
                     <option>All Orders</option>
+                    <option>Completed</option>
                     <option>Delivered</option>
+                    <option>Shipping</option>
                     <option>Processing</option>
+                    <option>Pending</option>
                     <option>Cancelled</option>
                 </select>
             </div>
