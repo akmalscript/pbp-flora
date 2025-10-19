@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CatalogController;
+use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
@@ -55,7 +56,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.view');
         Route::view('/manajemen-kategori', 'manajemenkategori')->name('categories.manage');
         Route::get('/manajemen-katalog', [CatalogController::class, 'index'])->name('catalog.manage');
-        Route::view('/orders-management', 'order')->name('orders.manage');
+    Route::get('/orders-management', [OrderManagementController::class, 'index'])->name('orders.manage');
+    Route::patch('/orders-management/{order}', [OrderManagementController::class, 'update'])->name('orders.update');
         Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
         Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
