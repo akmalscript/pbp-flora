@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flora</title>
+    <title>Flora Florist</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,14 +49,14 @@
                         class="w-10 h-10 object-cover rounded-full">
                     <span class="text-base font-semibold tracking-[0.3em] text-gray-900">FLORA</span>
                 </div>
-                <nav class="flex items-center space-x-8 uppercase tracking-wider text-[#d81b60]">
-                    <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-900 transition-colors">Home</a>
-                    <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-900 transition-colors">Shop</a>
-                    <button type="button" id="openContact"
-                        class="hover:text-gray-900 transition-colors focus:outline-none">Contact</button>
-                </nav>
                 <div class="flex items-center space-x-5 text-gray-600">
-                    <button type="button" id="navbarSearchTrigger" class="hover:text-gray-900 transition-colors"
+                    <nav class="flex items-center space-x-8 uppercase tracking-wider text-gray-900">
+                        <a href="{{ $baseHomeRoute }}#top" class="hover:text-gray-600 transition-colors">Home</a>
+                        <a href="{{ $baseHomeRoute }}#catalog" class="hover:text-gray-600 transition-colors">Shop</a>
+                        <button type="button" id="openContact"
+                            class="hover:text-gray-600 transition-colors focus:outline-none">CONTACT</button>
+                    </nav>
+                    <button type="button" id="navbarSearchTrigger" class="hover:text-gray-600 transition-colors"
                         aria-label="Search">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
@@ -64,7 +64,7 @@
                                 d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                     </button>
-                    <a href="#" class="hover:text-gray-900 transition-colors" aria-label="Cart">
+                    <a href="#" class="hover:text-gray-600 transition-colors" aria-label="Cart">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -300,10 +300,10 @@
                         <div>
                             <p class="font-medium text-slate-800">Phone / WhatsApp</p>
                             <a href="tel:+6281234567890" class="text-emerald-700 hover:underline">
-                                +62 812-3456-7890</a>
+                                wa.link/fsm0wq </a>
                             ·
-                            <a href="https://wa.me/6281234567890" target="_blank"
-                                class="text-emerald-700 hover:underline">Chat on WhatsApp</a>
+                            <a href="wa.link/fsm0wq" target="_blank" class="text-emerald-700 hover:underline">Chat on
+                                WhatsApp</a>
                         </div>
                     </li>
                     <li class="flex items-start gap-3">
@@ -334,40 +334,28 @@
     </div>
 
     <footer id="contact" class="bg-[#333333] text-gray-300">
-        <div class="max-w-7xl mx-auto py-12 px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
+        {{-- <div class="max-w-7xl mx-auto py-12 px-6">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('images/flora_logo3.jpg') }}" alt="Flora logo" class="h-10 object-contain">
                 </div>
-                <nav class="flex space-x-8 text-sm uppercase tracking-wider">
-                    <a href="#" class="hover:text-white">About Us</a>
-                    <a href="#" class="hover:text-white">Contact</a>
-                    <a href="#" class="hover:text-white">Shipping</a>
-                </nav>
-                <div class="flex space-x-6">
-                    <a href="#" class="hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z" />
-                        </svg>
-                    </a>
-                    <a href="#" class="hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616v.064c0 2.299 1.634 4.217 3.793 4.65-1.073.291-2.235.233-3.234-.04 1.684 2.409 4.404 3.492 7.03 3.53-2.053 1.611-4.648 2.529-7.34 2.164 2.138 1.393 4.67 2.208 7.398 2.208 8.868 0 13.725-7.348 13.4-13.778.948-.682 1.77-1.534 2.423-2.502z" />
-                        </svg>
-                    </a>
-                </div>
             </div>
-        </div>
+        </div> --}}
         <div class="border-t border-gray-700">
-            <div class="max-w-7xl mx-auto py-3 px-6 text-center text-xs text-gray-400">
-                <p>&copy; 2024. All rights reserved.</p>
+            <div class="max-w-7xl mx-auto py-10 px-6 text-center text-sm text-gray-200">
+                <p>Copyright &copy; 2024 FLORA. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <a href="https://wa.me/6287825334959" target="_blank" rel="noopener"
+        class="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:shadow-xl transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#25D366]/40"
+        aria-label="Chat on WhatsApp">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-7 h-7 text-white">
+            <path
+                d="M12.04 2c-5.51 0-9.96 4.45-9.96 9.96 0 1.76.46 3.48 1.34 5.01L2 22l5.17-1.34a9.9 9.9 0 0 0 4.87 1.25h.01c5.51 0 9.96-4.45 9.96-9.96A9.93 9.93 0 0 0 12.04 2Zm0 18.18h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.07.8.82-2.99-.2-.31a8.2 8.2 0 1 1 15.08-4.3c0 4.52-3.67 8.13-8.14 8.13Zm4.47-6.1c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.42-1.34-1.66-.14-.24-.01-.36.1-.48.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.48-.4-.42-.54-.42-.14 0-.3-.02-.46-.02s-.42.06-.64.3c-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.58.25 1.04.4 1.4.51.59.19 1.12.16 1.54.1.47-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28Z" />
+        </svg>
+    </a>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
