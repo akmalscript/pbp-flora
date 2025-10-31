@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -54,6 +55,14 @@ class ProductController extends Controller
     {
         $data = $this->validateProductData($request);
 
+        $request->validate([
+            'image_file' => ['required', 'image', 'max:5120'],
+        ]);
+
+        $storedPath = $request->file('image_file')->store('products', 'public');
+        $publicPath = ltrim(Storage::url($storedPath), '/');
+        $data['image_url'] = $publicPath;
+
         $product = Product::create($data);
 
         return $this->respondWithProduct($request, $product, 'Produk berhasil ditambahkan.', 201);
@@ -85,6 +94,17 @@ class ProductController extends Controller
     {
         $data = $this->validateProductData($request);
 
+        if ($request->hasFile('image_file')) {
+            $request->validate([
+                'image_file' => ['image', 'max:5120'],
+            ]);
+
+            $storedPath = $request->file('image_file')->store('products', 'public');
+            $data['image_url'] = ltrim(Storage::url($storedPath), '/');
+        } else {
+            $data['image_url'] = $product->image_url;
+        }
+
         $product->update($data);
 
         return $this->respondWithProduct($request, $product->refresh(), 'Produk berhasil diperbarui.');
@@ -114,7 +134,6 @@ class ProductController extends Controller
             'description' => ['required', 'string', 'max:255'],
             'price' => ['required', 'integer', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
-            'image_url' => ['required', 'string', 'max:255'],
             'pre_order_duration' => ['required', 'integer', 'min:0'],
             'category_id' => ['nullable', Rule::exists('categories', 'id')],
             'active' => ['sometimes', 'boolean'],
@@ -125,7 +144,6 @@ class ProductController extends Controller
             'description' => $validated['description'],
             'price' => (int) $validated['price'],
             'stock' => (int) $validated['stock'],
-            'image_url' => $validated['image_url'],
             'pre_order_duration' => (int) $validated['pre_order_duration'],
             'category_id' => $validated['category_id'] ?? null,
         ];

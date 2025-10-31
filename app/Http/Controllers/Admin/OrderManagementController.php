@@ -17,6 +17,10 @@ class OrderManagementController extends Controller
     {
         $orders = Order::query()
             ->with('user')
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhereRaw('LOWER(status) <> ?', ['pending']);
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -47,12 +51,12 @@ class OrderManagementController extends Controller
      */
     protected function statusOptions(): array
     {
-        $defaults = collect(['pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled', 'Completed']);
+        $defaults = collect(['Processing', 'Shipping', 'Delivered', 'Cancelled', 'Completed']);
         $existing = Order::query()->select('status')->distinct()->pluck('status')->filter();
 
         return $defaults
             ->merge($existing)
-            ->filter()
+            ->filter(fn ($status) => $status && strtolower((string) $status) !== 'pending')
             ->unique()
             ->mapWithKeys(function ($status) {
                 $statusString = (string) $status;

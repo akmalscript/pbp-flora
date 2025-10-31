@@ -23,9 +23,81 @@ class ProductSeeder extends Seeder
         }
 
         $products = [
+            // [
+            //     'name' => 'Tulip Bouquet6',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet7',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet8',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet9',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet1',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet2',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet3',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet4',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
+            // [
+            //     'name' => 'Tulip Bouquet5',
+            //     'description' => 'Bright tulips arranged to lift any mood.',
+            //     'price' => 50000,
+            //     'stock' => 10,
+            //     'image_url' => 'images/bouquet/tulip.jpg',
+            //     'category_slug' => 'bouquets',
+            // ],
             [
                 'name' => 'Tulip Bouquet',
-                'description' => 'Bunga yang mantap',
+                'description' => 'Bright tulips arranged to lift any mood.',
                 'price' => 50000,
                 'stock' => 10,
                 'image_url' => 'images/bouquet/tulip.jpg',
@@ -33,7 +105,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Sunflower Bouquet',
-                'description' => 'Bunga yang mantap',
+                'description' => 'Sunflowers bundled for a sunny celebration.',
                 'price' => 50000,
                 'stock' => 12,
                 'image_url' => 'images/bouquet/sunflower.jpg',
@@ -41,7 +113,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Lily Bouquet',
-                'description' => 'Rangkaian lily segar dengan aroma lembut.',
+                'description' => 'Fresh lilies with a soft, elegant fragrance.',
                 'price' => 50000,
                 'stock' => 8,
                 'image_url' => 'images/bouquet/lily.jpg',
@@ -49,7 +121,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Mix Bouquet',
-                'description' => 'Kombinasi bunga pilihan untuk setiap momen.',
+                'description' => 'Curated mix of blooms suited for any occasion.',
                 'price' => 50000,
                 'stock' => 15,
                 'image_url' => 'images/bouquet/mix.jpg',
@@ -57,7 +129,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Orchid Bouquet',
-                'description' => 'Anggrek elegan cocok untuk hadiah spesial.',
+                'description' => 'Elegant orchids perfect for thoughtful gifting.',
                 'price' => 50000,
                 'stock' => 6,
                 'image_url' => 'images/bouquet/orchid.jpg',
@@ -65,7 +137,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Peony Bouquet',
-                'description' => 'Peony mewah dengan warna pastel yang lembut.',
+                'description' => 'Luxe peonies in soft pastel tones.',
                 'price' => 50000,
                 'stock' => 5,
                 'image_url' => 'images/bouquet/peony.jpg',
@@ -73,84 +145,84 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Rose Bouquet',
-                'description' => 'Rangkaian mawar merah klasik penuh makna.',
+                'description' => 'Classic red roses wrapped with heartfelt charm.',
                 'price' => 50000,
                 'stock' => 18,
                 'image_url' => 'images/bouquet/rose.jpg',
                 'category_slug' => 'bouquets',
             ],
             [
-                'name' => 'Hampers Bunga',
-                'description' => 'Paket hampers bunga untuk hadiah spesial.',
+                'name' => 'Floral Hamper',
+                'description' => 'Gift hamper filled with curated floral delights.',
                 'price' => 75000,
                 'stock' => 7,
                 'image_url' => 'images/gifts/hampers bunga.jpg',
                 'category_slug' => 'gifts',
             ],
             [
-                'name' => 'Karangan Bunga',
-                'description' => 'Karangan bunga elegan untuk berbagai acara.',
+                'name' => 'Standing Flower Arrangement',
+                'description' => 'Tall arrangement designed to elevate any venue.',
                 'price' => 80000,
                 'stock' => 9,
                 'image_url' => 'images/gifts/karangan bunga.jpg',
                 'category_slug' => 'gifts',
             ],
             [
-                'name' => 'Papan Bunga',
-                'description' => 'Papan ucapan dengan rangkaian bunga yang indah.',
+                'name' => 'Flower Board',
+                'description' => 'Celebratory flower board with custom messaging.',
                 'price' => 120000,
                 'stock' => 4,
                 'image_url' => 'images/gifts/papan bunga.jpg',
                 'category_slug' => 'gifts',
             ],
             [
-                'name' => 'Papan Karangan Bunga',
-                'description' => 'Papan karangan bunga untuk momen spesial.',
+                'name' => 'Grand Flower Board',
+                'description' => 'Large-format flower board for milestone events.',
                 'price' => 130000,
                 'stock' => 3,
                 'image_url' => 'images/gifts/papan karangan bunga.jpg',
                 'category_slug' => 'gifts',
             ],
             [
-                'name' => 'Anggrek Pink',
+                'name' => 'Pink Orchid Vase',
                 'lookup_names' => ['VaseFlowerAnggrekPink'],
-                'description' => 'Vas bunga anggrek pink yang elegan.',
+                'description' => 'Elegant pink orchid set in a glass vase.',
                 'price' => 110000,
                 'stock' => 6,
                 'image_url' => 'images/vase_flower/VaseFlowerAnggrekPink.jpg',
                 'category_slug' => 'vase-flowers',
             ],
             [
-                'name' => 'Poppy Warna Warni',
+                'name' => 'Colorful Poppy Vase',
                 'lookup_names' => ['VaseFlowerPoppyWarnaWarni'],
-                'description' => 'Poppy warna-warni dalam vas kaca modern.',
+                'description' => 'Vibrant poppies displayed in a modern vase.',
                 'price' => 95000,
                 'stock' => 7,
                 'image_url' => 'images/vase_flower/VaseFlowerPoppyWarnaWarni.jpg',
                 'category_slug' => 'vase-flowers',
             ],
             [
-                'name' => 'Poppy Biru',
+                'name' => 'Blue Poppy Vase',
                 'lookup_names' => ['VaseFlowerPoppyBiru'],
-                'description' => 'Rangkaian poppy biru langka dalam vas.',
+                'description' => 'Rare blue poppies styled in a minimalist vase.',
                 'price' => 98000,
                 'stock' => 5,
                 'image_url' => 'images/vase_flower/VaseFlowerPoppyBiru.jpg',
                 'category_slug' => 'vase-flowers',
             ],
             [
-                'name' => 'Anthurium Mawar Merah',
+                'name' => 'Red Anthurium And Roses',
                 'lookup_names' => ['VaseFlowerAnthuriumMawarMerah'],
-                'description' => 'Anthurium dan mawar merah dalam satu vas.',
+                'description' => 'Anthuriums paired with red roses in one vase.',
                 'price' => 120000,
                 'stock' => 4,
                 'image_url' => 'images/vase_flower/VaseFlowerAnthuriumMawarMerah.jpg',
                 'category_slug' => 'vase-flowers',
             ],
             [
-                'name' => 'Anthurium Lily Kuning',
+                'name' => 'Yellow Anthurium And Lilies',
                 'lookup_names' => ['VaseFlowerAnthuriumLilyKuning'],
-                'description' => 'Anthurium dan lily kuning dalam vas elegan.',
+                'description' => 'Yellow anthuriums and lilies arranged with ease.',
                 'price' => 118000,
                 'stock' => 5,
                 'image_url' => 'images/vase_flower/VaseFlowerAnthuriumLilyKuning.jpg',
@@ -186,16 +258,6 @@ class ProductSeeder extends Seeder
             } else {
                 $product = Product::create($attributes);
             }
-
-            // Additional gallery photos removed; rely on primary image_url only.
         }
-
-        // $electronics = Category::where('name', 'Elektronik')->first();
-        // $clothing = Category::where('name', 'Pakaian')->first();
-        // $food = Category::where('name', 'Makanan & Minuman')->first();
-        // $books = Category::where('name', 'Buku')->first();
-
-        // // Produk Elektronik
-        // Additional sample products removed.
     }
 }

@@ -7,31 +7,8 @@ use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Category::create([
-        //     'name' => 'Elektronik',
-        //     'description' => 'Perangkat elektronik seperti HP, Laptop, dll.'
-        // ]);
-
-        // Category::create([
-        //     'name' => 'Pakaian',
-        //     'description' => 'Baju, celana, dan aksesoris fashion.'
-        // ]);
-
-        // Category::create([
-        //     'name' => 'Makanan & Minuman',
-        //     'description' => 'Snack, minuman, dan bahan makanan.'
-        // ]);
-
-        // Category::create([
-        //     'name' => 'Buku',
-        //     'description' => 'Buku fiksi, non-fiksi, dan buku anak-anak.'
-        // ]);
-
         $categories = [
             [
                 'name' => 'Bouquets',
@@ -45,6 +22,54 @@ class CategorySeeder extends Seeder
                 'name' => 'Gifts',
                 'description' => 'Complementary gifts and hampers to pair with flowers.',
             ],
+            // [
+            //     'name' => 'Gifts1',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts2',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts3',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts4',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts5',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts6',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts7',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts8',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts9',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts10',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts11',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
+            // [
+            //     'name' => 'Gifts12',
+            //     'description' => 'Complementary gifts and hampers to pair with flowers.',
+            // ],
         ];
 
         foreach ($categories as $category) {

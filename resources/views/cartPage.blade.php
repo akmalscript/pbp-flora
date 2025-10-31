@@ -31,11 +31,18 @@
             <div class="flex items-center border rounded-lg">
               <form action="{{ route('user.cart.decrease', $product->id) }}" method="POST">
                 @csrf
-                <button class="px-3 py-2 hover:bg-gray-100">−</button>
+                <button class="px-3 py-2 hover:bg-gray-100">-</button>
               </form>
 
-              <input type="text" readonly value="{{ $product->pivot->quantity }}"
-                     class="w-12 text-center border-x outline-none" />
+              <form action="{{ route('user.cart.update', $product->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <input type="number" name="quantity" value="{{ $product->pivot->quantity }}"
+                  min="1" max="{{ $product->stock }}"
+                  class="no-spinner w-12 text-center border-x outline-none quantity-input" />
+                <button type="submit" class="hidden"></button>
+              </form>
 
               <form action="{{ route('user.cart.increase', $product->id) }}" method="POST">
                 @csrf
@@ -86,3 +93,61 @@
   </aside>
 </main>
 @endsection
+
+@push('scripts')
+<script>
+document.querySelectorAll('.quantity-input').forEach(input => {
+  input.addEventListener('keydown', function(e) {
+    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
+    const isCtrlCombo = (e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase());
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = parseInt(this.value);
+      const min = parseInt(this.min);
+      const max = parseInt(this.max);
+
+      if (isNaN(value) || value < min) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Jumlah terlalu kecil',
+          text: `Jumlah minimal adalah ${min}`,
+          allowOutsideClick: false,
+          confirmButtonText: 'OK'
+        }).then(() => {
+          this.value = min;
+          this.focus();
+        });
+        return;
+      }
+
+      if (value > max) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Jumlah melebihi stok',
+          text: `Jumlah maksimal stok adalah ${max}`,
+          allowOutsideClick: false,
+          confirmButtonText: 'OK'
+        }).then(() => {
+          this.value = max;
+          this.focus();
+        });
+        return;
+      }
+
+      this.form.submit();
+      return;
+    }
+
+    if (!allowedKeys.includes(e.key) && !isCtrlCombo && !/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  input.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+  });
+});
+</script>
+
+@endpush

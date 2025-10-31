@@ -21,7 +21,6 @@
                     <option>Delivered</option>
                     <option>Shipping</option>
                     <option>Processing</option>
-                    <option>Pending</option>
                     <option>Cancelled</option>
                 </select>
             </div>
@@ -47,7 +46,18 @@
                     </tr>
                 </thead>
                 <tbody id="order-table">
-                    @forelse ($orders as $order)
+                    @php
+                        $hasVisibleOrders = false;
+                    @endphp
+                    @foreach ($orders as $order)
+                        @if (strtolower($order->status) === 'pending')
+                            @continue
+                        @endif
+
+                        @php
+                            $hasVisibleOrders = true;
+                        @endphp
+
                         <tr class="border-t hover:bg-gray-50">
                             <td class="py-4 px-6 font-medium text-gray-800">#{{ $order->id }}</td>
                             <td class="py-4 px-6 text-gray-700">{{ $order->created_at->format('Y-m-d') }}</td>
@@ -57,11 +67,12 @@
                                 <a href="{{ route('user.orders.show', $order->id) }}" class="text-orange-500 hover:underline">View Details</a>
                             </td>
                         </tr>
-                    @empty
+                    @endforeach
+                    @if (! $hasVisibleOrders)
                         <tr>
                             <td class="py-6 px-6 text-center text-gray-600" colspan="5">Belum ada pesanan.</td>
                         </tr>
-                    @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>

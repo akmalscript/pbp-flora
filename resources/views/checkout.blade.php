@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('content')
 <div class="flex flex-col p-4 max-w-5xl mx-auto">
@@ -41,8 +41,8 @@
                     <label class="block text-sm font-medium text-slate-700 mb-2">Gift card or discount code</label>
                     <form id="checkout-coupon-form" action="{{ route('user.cart.applyCoupon') }}" method="POST" class="flex gap-3">
                         @csrf
-                        <input name="coupon" type="text" placeholder="Enter code"
-                               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" autocomplete="off"/>
+               <input name="coupon" type="text" placeholder="Enter code"
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" autocomplete="off"/>
                         <button type="submit" class="bg-gray-900 text-white px-3 rounded-lg hover:bg-gray-800 transition">Apply</button>
                     </form>
                     @error('coupon')
@@ -55,21 +55,21 @@
                 <hr class="my-2" />
                 <div class="flex justify-between">
                     <span class="text-lg font-bold">Total</span>
-                    <span id="total-display" class="text-lg font-bold text-sky-600">{{ 'Rp ' . number_format($subtotal - $discount, 0, ',', '.') }}</span>
+                    <span id="total-display" class="text-lg font-bold text-orange-500">{{ 'Rp ' . number_format($subtotal - $discount, 0, ',', '.') }}</span>
                 </div>
             </div>
 
             <div class="mt-4">
                 <label for="order-note" class="block text-sm font-medium text-slate-700 mb-2">Catatan untuk penjual (opsional)</label>
                 <textarea id="order-note" name="note" rows="3" placeholder="Contoh: Tolong sertakan kartu ucapan."
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"></textarea>
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
             </div>
 
             <hr class="w-4/5 mx-auto border-t border-gray-500 mt-3" />
             @php $payDisabled = ($subtotal <= 0 || empty($orderItems)); @endphp
             <button id="pay-button" type="button" 
                     @if($payDisabled) disabled aria-disabled="true" @endif
-                    class="w-full py-2 rounded font-semibold transition {{ $payDisabled ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-yellow-600 text-white' }}">
+                    class="w-full py-2 rounded font-semibold transition hover:bg-orange-600 {{ $payDisabled ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-yellow-600 text-white' }}">
                 Bayar Sekarang
             </button>
         </div>
@@ -232,7 +232,7 @@
                     <form id="courier-selection-form">
                         ${itemsHtml}
                         <div class="mt-3 text-right">
-                            <button type="button" id="confirm-courier-btn" class="bg-sky-600 text-white font-semibold py-2 px-4 rounded">Pilih</button>
+                            <button type="button" id="confirm-courier-btn" class="mt-6 w-full bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-300">Pilih</button>
                         </div>
                     </form>
                 </div>
@@ -374,7 +374,7 @@
                 event.preventDefault(); 
                 
                 courierContainer.innerHTML = `<div class="p-4 text-center mt-4">
-                    <div class="w-8 h-8 border-4 border-slate-200 border-t-sky-500 rounded-full animate-spin mx-auto mb-3"></div>
+                    <div class="w-8 h-8 border-4 border-slate-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-3"></div>
                     <p class="font-semibold text-slate-600">Menghitung ongkos kirim...</p>
                 </div>`;
 
@@ -512,7 +512,7 @@ document.getElementById('pay-button').addEventListener('click', async function()
             if (window.Swal) {
                 Swal.fire({
                 icon: 'error',
-                title: 'Stok Tidak Cukup',
+                title: 'Gagal Melakukan Pembayaran',
                     text: errorMessage,
                     confirmButtonText: 'Kembali ke Keranjang'
                 }).then(() => {

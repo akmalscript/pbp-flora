@@ -158,7 +158,6 @@ class CheckoutController extends Controller
             || $request->wantsJson()
             || $request->ajax();
 
-        // Build server-side total from cart items, shipping and session coupon
         $cart = Cart::where('user_id', $user->id)->where('active', true)->with('products')->first();
         if (!$cart || $cart->products->isEmpty()) {
             if ($wantsJsonResponse) {
@@ -225,7 +224,6 @@ class CheckoutController extends Controller
             return redirect()->route('user.cart.index')->with('warning', $message);
         }
 
-        // Validate shipping method and ensure courier selection when required
         $selectedCourierPayload = null;
         $validator = Validator::make($request->all(), [
             'shipping_method' => 'required|string',
@@ -277,7 +275,6 @@ class CheckoutController extends Controller
             ], 422);
         }
 
-        // subtotal
         $cartSubtotal = 0;
         foreach ($cart->products as $product) {
             $price = $product->price ?? 0;
@@ -285,24 +282,20 @@ class CheckoutController extends Controller
             $cartSubtotal += ($price * $quantity);
         }
 
-        // Determine shipping cost from client's selected courier info if present
         $shippingCost = 0;
         if (is_array($selectedCourierPayload) && isset($selectedCourierPayload['cost'][0]['value'])) {
             $shippingCost = (int) $selectedCourierPayload['cost'][0]['value'];
         }
 
-        // Read coupon discount from session (if any) and compute final total server-side
         $discount = (int) session('coupon_discount', 0);
         $serverTotal = max(0, (int) $cartSubtotal + (int) $shippingCost - (int) $discount);
 
-        // Create order record (pending) using serverTotal to prevent tampering
         $shippingMethod = $request->input('shipping_method');
         $isDelivery = true;
         if ($shippingMethod && in_array(strtolower($shippingMethod), ['pickup', 'pick up', 'ambil'])) {
             $isDelivery = false;
         }
 
-        // Normalize note to avoid NULL values
         $note = $request->input('note') ?? '';
         $courierService = null;
         if (is_array($selectedCourierPayload)) {
@@ -310,8 +303,6 @@ class CheckoutController extends Controller
             $courierService = $encodedCourier !== false ? $encodedCourier : null;
         }
 
-        // Resolve address parts server-side so we store human-readable names (not numeric ids)
-        // Prefer explicit inputs (fullAddress, village, district, city, province, postalCode)
         $fullAddressText = trim((string) $request->input('fullAddress', ''));
 
         $provinceInput = $request->input('province');
@@ -324,7 +315,6 @@ class CheckoutController extends Controller
         $villageLabel = trim((string) $request->input('village_label', ''));
         $postalInput = trim((string) $request->input('postalCode', ''));
 
-        // Try to resolve each region id -> name using external wilayah API; fallback to provided labels
         $provinceName = $this->resolveRegionName('province', $provinceInput) ?? ($provinceLabel !== '' ? $provinceLabel : null);
         $cityName = $this->resolveRegionName('city', $cityInput, $provinceInput) ?? ($cityLabel !== '' ? $cityLabel : null);
         $districtName = $this->resolveRegionName('district', $districtInput, $cityInput) ?? ($districtLabel !== '' ? $districtLabel : null);
@@ -340,12 +330,10 @@ class CheckoutController extends Controller
 
         $resolvedAddress = collect($parts)->filter(fn($p) => $p !== null && trim($p) !== '')->implode(', ');
 
-        // If client already sent a concatenated address string and we couldn't build one, fall back
         if ($resolvedAddress === '') {
             $resolvedAddress = $request->input('address', '') ?? '';
         }
 
-        // Create order record (pending) inside try/catch so any DB error is returned as JSON
         try {
             $order = Order::create([
                 'status' => 'pending',
@@ -357,7 +345,6 @@ class CheckoutController extends Controller
                 'user_id' => $user->id,
             ]);
 
-            // Attach order items
             foreach ($cart->products as $product) {
                 $price = $product->price ?? 0;
                 $quantity = $product->pivot->quantity ?? 1;
@@ -372,12 +359,10 @@ class CheckoutController extends Controller
 
             $orderId = $order->id;
         } catch (\Throwable $e) {
-            // If order was partially created, attempt to delete it
             if (isset($order) && $order instanceof Order) {
                 try { $order->delete(); } catch (\Throwable $t) {}
             }
 
-            // Log and return JSON error so client can parse it
             logger()->error('Checkout payment: failed to create order', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Failed to create order: ' . $e->getMessage()], 500);
         }

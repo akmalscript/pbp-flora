@@ -14,20 +14,31 @@ class AdminDashboardController extends Controller
     {
         $completedStatuses = ['completed', 'delivered'];
 
+        $normalizedPendingStatus = 'pending';
+
         $completedOrdersQuery = Order::query()->whereIn('status', $completedStatuses);
 
         $totalRevenue = (clone $completedOrdersQuery)->sum('total');
         $completedOrdersCount = (clone $completedOrdersQuery)->count();
 
-        $totalOrdersCount = Order::query()->count();
-        $pendingOrdersCount = Order::query()->whereNotIn('status', $completedStatuses)->count();
+        $totalOrdersQuery = Order::query()
+            ->where(function ($query) use ($normalizedPendingStatus) {
+                $query->whereNull('status')
+                    ->orWhereRaw('LOWER(status) <> ?', [$normalizedPendingStatus]);
+            });
 
-    $totalProductStock = Product::query()->sum('stock');
-    $lowStockThreshold = 5;
-    $lowStockProductCount = Product::query()->where('stock', '<=', $lowStockThreshold)->count();
+        $totalOrdersCount = (clone $totalOrdersQuery)->count();
+
+        $totalProductStock = Product::query()->sum('stock');
+        $lowStockThreshold = 5;
+        $lowStockProductCount = Product::query()->where('stock', '<=', $lowStockThreshold)->count();
 
         $recentOrders = Order::query()
             ->with('user')
+            ->where(function ($query) use ($normalizedPendingStatus) {
+                $query->whereNull('status')
+                    ->orWhereRaw('LOWER(status) <> ?', [$normalizedPendingStatus]);
+            })
             ->latest()
             ->take(5)
             ->get();
@@ -73,7 +84,6 @@ class AdminDashboardController extends Controller
             ],
             'orderStats' => [
                 'total' => $totalOrdersCount,
-                'pending' => $pendingOrdersCount,
             ],
             'inventory' => [
                 'totalStock' => $totalProductStock,

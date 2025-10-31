@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    // Dapatkan cart aktif user, buat baru kalau belum ada
     public function getActiveCart()
     {
         $user = Auth::user();
@@ -28,7 +27,6 @@ class CartController extends Controller
         return $cart;
     }
 
-    // Tampilkan cart
     public function index()
     {
         $cart = $this->getActiveCart();
@@ -37,7 +35,6 @@ class CartController extends Controller
         return view('cartPage', compact('cart'));
     }
 
-    // Tambah item ke cart
     public function store(Request $request)
     {
         $request->validate([
@@ -62,24 +59,36 @@ class CartController extends Controller
         return redirect()->back()->with('success', "$quantity item(s) added to cart!");
     }
 
-    // Update quantity item
-    public function update(Request $request, $itemId)
+    public function update(Request $request, $productId)
     {
-        $request->validate([
-            'quantity' => 'required|integer|min:1',
+        $cart = $this->getActiveCart();
+        $cartItem = $cart->products()->where('product_id', $productId)->first();
+        
+        if (! $cartItem) {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan di keranjang.');
+        }
+        
+        $product = Product::find($productId);
+        
+        if (! $product || (int) $product->stock <= 0) {
+            $cart->products()->detach($productId);
+            
+            return redirect()->back()->with('error', 'Produk sudah tidak tersedia. Item dihapus dari keranjang.');
+        }
+        
+        $availableStock = (int) $product->stock;
+        
+        if ($request->quantity > $availableStock) {
+            return redirect()->back()->with('warning', 'Requested quantity exceeds available stock.');
+        }
+        
+        $cart->products()->updateExistingPivot($productId, [
+            'quantity' => $request->quantity,
         ]);
 
-        $item = CartItem::findOrFail($itemId);
-        $item->quantity = $request->quantity;
-        $item->save();
-
-        return response()->json([
-            'message' => 'Cart item updated',
-            'item' => $item
-        ]);
+        return redirect()->back()->with('success', 'Quantity updated');
     }
 
-    // Increase quantity
     public function increase($productId)
     {
         $cart = $this->getActiveCart();
@@ -119,7 +128,6 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Quantity increased');
     }
 
-    // Decrease quantity
     public function decrease($productId)
     {
         $cart = $this->getActiveCart();
@@ -164,7 +172,6 @@ class CartController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
-    // Hapus item dari cart
     public function destroy($productId)
     {
         $cart = $this->getActiveCart();
@@ -173,7 +180,6 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart');
     }
 
-    // Hapus semua cart (opsional)
     public function clear()
     {
         $cart = $this->getActiveCart();
@@ -184,7 +190,6 @@ class CartController extends Controller
         ]);
     }
 
-    // Menonaktifkan cart (misal checkout)
     public function deactivate($cartId)
     {
         $cart = Cart::findOrFail($cartId);
@@ -195,6 +200,4 @@ class CartController extends Controller
             'message' => 'Cart deactivated'
         ]);
     }
-
-    
 }

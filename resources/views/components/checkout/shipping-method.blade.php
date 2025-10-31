@@ -3,7 +3,7 @@
     <div>
         <input type="radio" id="PickUp" name="shipping_method" value="PickUp"
                class="hidden peer" onchange="toggleShippingAddress(this.value)">
-        <label for="PickUp" class="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-300 peer-checked:border-sky-500 peer-checked:ring-2 peer-checked:ring-sky-200 hover:bg-slate-50">
+    <label for="PickUp" class="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-300 peer-checked:border-orange-500 peer-checked:ring-2 peer-checked:ring-orange-200 hover:bg-orange-50/50">
             <div class="flex-shrink-0 mr-4">@include('components.checkout.icons.store')</div>
             <div class="flex-grow">
                 <span class="font-bold text-slate-700">Ambil di Toko</span>
@@ -14,7 +14,7 @@
     <div>
         <input type="radio" id="Kurir" name="shipping_method" value="Kurir"
                class="hidden peer" onchange="toggleShippingAddress(this.value)">
-        <label for="Kurir" class="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-300 peer-checked:border-sky-500 peer-checked:ring-2 peer-checked:ring-sky-200 hover:bg-slate-50">
+    <label for="Kurir" class="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-300 peer-checked:border-orange-500 peer-checked:ring-2 peer-checked:ring-orange-200 hover:bg-orange-50/50">
             <div class="flex-shrink-0 mr-4">@include('components.checkout.icons.truck')</div>
             <div class="flex-grow">
                 <span class="font-bold text-slate-700">Kurir</span>

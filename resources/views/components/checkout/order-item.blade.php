@@ -14,7 +14,7 @@
       <p class="text-sm text-slate-500 mt-1">
         Jumlah: <span class="font-semibold text-slate-600">{{ $item['quantity'] }}</span>
       </p>
-      <p class="font-semibold text-sky-600 text-base">
+  <p class="font-semibold text-orange-500 text-base">
         {{ 'Rp ' . number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
       </p>
     </div>

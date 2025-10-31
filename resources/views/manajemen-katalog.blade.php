@@ -2,8 +2,24 @@
 
 @section('content')
 @php
+    use Illuminate\Support\Str;
+
     $products = $products ?? collect();
     $categories = $categories ?? collect();
+    $productSearch = $productSearch ?? '';
+    $categorySearch = $categorySearch ?? '';
+
+    $resolveImageUrl = static function (?string $path): string {
+        if (! $path) {
+            return 'https://placehold.co/96x96?text=No+Image';
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '//'])) {
+            return $path;
+        }
+
+        return asset(ltrim($path, '/'));
+    };
 @endphp
     <section class="text-center mt-12 mb-10">
         <h1 class="text-3xl font-bold tracking-wide text-gray-900">MANAJEMEN PRODUK DAN KATEGORI</h1>
@@ -28,18 +44,28 @@
         <section class="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
             <h2 class="text-lg text-center font-semibold mb-4">PRODUK</h2>
 
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
                 <div class="relative flex-1">
-                    <input type="text" placeholder="Search" class="w-full border border-gray-300 rounded-md pl-8 pr-3 py-2 text-sm focus:ring-1 focus:ring-orange-400 focus:outline-none" />
+                    <input
+                        type="text"
+                        name="product_search"
+                        value="{{ $productSearch }}"
+                        placeholder="Search"
+                        class="w-full border border-gray-300 rounded-md pl-8 pr-3 py-2 text-sm focus:ring-1 focus:ring-orange-400 focus:outline-none"
+                    />
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-2 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-
-                <button id="open-create-product" type="button" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium w-full sm:w-auto">
-                    TAMBAH PRODUK
+                <input type="hidden" name="category_search" value="{{ $categorySearch }}" />
+                <button type="submit" class="bg-white border border-orange-500 text-orange-600 hover:bg-orange-50 px-4 py-2 rounded-md text-sm font-semibold">
+                    CARI
                 </button>
-            </div>
+            </form>
+
+            <button id="open-create-product" type="button" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium w-full sm:w-auto mb-4">
+                TAMBAH PRODUK
+            </button>
 
             <table class="w-full text-sm border-t">
                 <thead class="text-left text-gray-600 border-b">
@@ -52,7 +78,7 @@
                 <tbody class="divide-y">
                     @forelse ($products as $product)
                         @php
-                            $imageUrl = $product->image_url ?? 'https://placehold.co/96x96?text=No+Image';
+                            $imageUrl = $resolveImageUrl($product->image_url ?? null);
                             $stock = (int) ($product->stock ?? 0);
                             $categoryName = optional($product->category)->name ?? 'Tanpa Kategori';
                             $productPayload = [
@@ -62,6 +88,7 @@
                                 'price' => $product->price,
                                 'stock' => $stock,
                                 'image_url' => $product->image_url,
+                                'image_preview_url' => $imageUrl,
                                 'pre_order_duration' => $product->pre_order_duration,
                                 'category_id' => $product->category_id,
                                 'update_url' => route('admin.products.update', $product->id),
@@ -102,17 +129,27 @@
         <section class="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
             <h2 class="text-lg text-center font-semibold mb-4">KATEGORI</h2>
 
-            <div class="flex items-center justify-between gap-4 pb-4">
+            <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-3 pb-3">
                 <div class="relative flex-1">
-                    <input type="text" placeholder="Search" class="w-full border border-gray-300 rounded-md pl-8 pr-3 py-2 text-sm focus:ring-1 focus:ring-orange-400 focus:outline-none" />
+                    <input
+                        type="text"
+                        name="category_search"
+                        value="{{ $categorySearch }}"
+                        placeholder="Search"
+                        class="w-full border border-gray-300 rounded-md pl-8 pr-3 py-2 text-sm focus:ring-1 focus:ring-orange-400 focus:outline-none"
+                    />
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-2 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <button id="open-create-category" type="button" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    TAMBAH KATEGORI
+                <input type="hidden" name="product_search" value="{{ $productSearch }}" />
+                <button type="submit" class="bg-white border border-orange-500 text-orange-600 hover:bg-orange-50 px-4 py-2 rounded-md text-sm font-semibold">
+                    CARI
                 </button>
-            </div>
+            </form>
+            <button id="open-create-category" type="button" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium w-full sm:w-auto mb-4">
+                TAMBAH KATEGORI
+            </button>
 
             <table class="w-full text-sm border-t">
                 <thead class="text-left text-gray-600 border-b">
@@ -166,7 +203,7 @@
                 <h3 class="text-lg font-semibold text-gray-800">Tambah Produk</h3>
                 <button type="button" data-modal-close class="text-gray-500 hover:text-gray-700">&times;</button>
             </div>
-            <form id="create-product-form" method="POST" action="{{ route('admin.products.store') }}" class="px-6 py-6 space-y-4">
+            <form id="create-product-form" method="POST" action="{{ route('admin.products.store') }}" class="px-6 py-6 space-y-4" enctype="multipart/form-data">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -176,11 +213,11 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-price">Harga</label>
-                        <input id="create-product-price" name="price" type="number" min="0" step="0.01" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
+                        <input id="create-product-price" name="price" type="number" min="0" step="1" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-stock">Stok</label>
-                        <input id="create-product-stock" name="stock" type="number" min="0" step="1" value="0" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
+                        <input id="create-product-stock" name="stock" type="number" min="0" step="1" value="0" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-category">Kategori</label>
@@ -193,13 +230,21 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="create-product-preorder">Durasi Pre-order (hari)</label>
-                        <input id="create-product-preorder" name="pre_order_duration" type="number" min="0" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="Misal: 3" required>
+                        <input id="create-product-preorder" name="pre_order_duration" type="number" min="0" step="1" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="Misal: 3" required>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700" for="create-product-image">URL Gambar</label>
-                    <input id="create-product-image" name="image_url" type="text" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="https://..." required>
+                    <label class="block text-sm font-medium text-gray-700" for="create-product-image">Gambar Produk</label>
+                    <input
+                        id="create-product-image"
+                        name="image_file"
+                        type="file"
+                        accept="image/*"
+                        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none"
+                        required
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Format JPG, PNG, atau WEBP. Maksimal 5 MB.</p>
                 </div>
 
                 <div>
@@ -222,7 +267,7 @@
                 <h3 class="text-lg font-semibold text-gray-800">Edit Produk</h3>
                 <button type="button" data-modal-close class="text-gray-500 hover:text-gray-700">&times;</button>
             </div>
-            <form id="edit-product-form" method="POST" action="#" class="px-6 py-6 space-y-4">
+            <form id="edit-product-form" method="POST" action="#" class="px-6 py-6 space-y-4" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="product_id" value="">
@@ -234,7 +279,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="edit-product-price">Harga</label>
-                        <input id="edit-product-price" name="price" type="number" min="0" step="0.01" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
+                        <input id="edit-product-price" name="price" type="number" min="0" step="1" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="edit-product-category">Kategori</label>
@@ -247,18 +292,33 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="edit-product-stock">Stok</label>
-                        <input id="edit-product-stock" name="stock" type="number" min="0" step="1" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
+                        <input id="edit-product-stock" name="stock" type="number" min="0" step="1" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" required>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700" for="edit-product-image">URL Gambar</label>
-                    <input id="edit-product-image" name="image_url" type="text" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="https://...">
+                    <span class="block text-sm font-medium text-gray-700">Gambar Saat Ini</span>
+                    <div class="mt-2 flex items-center gap-4">
+                        <img data-image-preview src="{{ $resolveImageUrl(null) }}" alt="Preview gambar produk" class="w-24 h-24 rounded-md border object-cover">
+                        <p class="text-xs text-gray-500">Gambar akan diganti setelah Anda mengunggah file baru.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700" for="edit-product-image-file">Unggah Gambar Baru</label>
+                    <input
+                        id="edit-product-image-file"
+                        name="image_file"
+                        type="file"
+                        accept="image/*"
+                        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Biarkan kosong jika tidak ingin mengubah gambar. Format JPG, PNG, atau WEBP (maks. 5 MB).</p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700" for="edit-product-preorder">Durasi Pre-order (hari)</label>
-                    <input id="edit-product-preorder" name="pre_order_duration" type="number" min="0" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="Misal: 3">
+                    <input id="edit-product-preorder" name="pre_order_duration" type="number" min="0" step="1" inputmode="numeric" data-numeric-input class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-orange-400 focus:outline-none" placeholder="Misal: 3">
                 </div>
 
                 <div>
@@ -336,6 +396,28 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const activeClosers = new Set();
+    const fallbackImage = @json($resolveImageUrl(null));
+
+    const enforceNumericInputs = () => {
+        const allowList = new Set(['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Enter']);
+
+        document.querySelectorAll('[data-numeric-input]').forEach((input) => {
+            input.addEventListener('keydown', (event) => {
+                if (event.defaultPrevented) return;
+                if (event.ctrlKey || event.metaKey || event.altKey) return;
+                if (allowList.has(event.key)) return;
+                if (/^[0-9]$/.test(event.key)) return;
+                event.preventDefault();
+            });
+
+            input.addEventListener('input', () => {
+                const cleaned = input.value.replace(/[^0-9]/g, '');
+                if (cleaned !== input.value) input.value = cleaned;
+            });
+        });
+    };
+
+    enforceNumericInputs();
 
     const configureModal = (modalId) => {
         const modal = document.getElementById(modalId);
@@ -351,6 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeClosers.delete(close);
             if (activeClosers.size === 0) document.body.classList.remove('overflow-hidden');
             if (form) form.reset();
+            modal.dispatchEvent(new CustomEvent('modal:closed'));
         };
 
         const open = () => {
@@ -358,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add('flex');
             activeClosers.add(close);
             document.body.classList.add('overflow-hidden');
+            modal.dispatchEvent(new CustomEvent('modal:opened'));
         };
 
         closeButtons.forEach((btn) => btn.addEventListener('click', close));
@@ -404,13 +488,53 @@ document.addEventListener('DOMContentLoaded', () => {
             if (form.elements['description']) form.elements['description'].value = data.description || '';
             if (form.elements['price']) form.elements['price'].value = data.price ?? '';
             if (form.elements['stock']) form.elements['stock'].value = data.stock ?? 0;
-            if (form.elements['image_url']) form.elements['image_url'].value = data.image_url || '';
             if (form.elements['pre_order_duration']) form.elements['pre_order_duration'].value = data.pre_order_duration ?? '';
             if (form.elements['category_id']) form.elements['category_id'].value = data.category_id || '';
+
+            const preview = form.querySelector('[data-image-preview]');
+            if (preview) {
+                const previewSrc = data.image_preview_url || fallbackImage;
+                preview.src = previewSrc;
+                preview.alt = data.name ? `Gambar ${data.name}` : 'Preview gambar produk';
+                preview.dataset.originalSrc = previewSrc;
+            }
+
+            const fileInput = form.querySelector('input[name="image_file"]');
+            if (fileInput) fileInput.value = '';
 
             editModal.open();
         });
     });
+
+    if (editModal && editModal.modal && editModal.form) {
+        const preview = editModal.form.querySelector('[data-image-preview]');
+        const fileInput = editModal.form.querySelector('input[name="image_file"]');
+
+        if (preview && fileInput) {
+            fileInput.addEventListener('change', (event) => {
+                const [file] = event.target.files || [];
+                if (!file) {
+                    const originalSrc = preview.dataset.originalSrc || fallbackImage;
+                    preview.src = originalSrc;
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    preview.src = reader.result;
+                    preview.alt = file.name;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            editModal.modal.addEventListener('modal:closed', () => {
+                delete preview.dataset.originalSrc;
+                preview.src = fallbackImage;
+                preview.alt = 'Preview gambar produk';
+                fileInput.value = '';
+            });
+        }
+    }
 
     document.querySelectorAll('.edit-category-btn').forEach((button) => {
         button.addEventListener('click', () => {

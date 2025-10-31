@@ -3,14 +3,13 @@
 @section('content')
     @php
   $summary = $salesSummary ?? ['totalRevenue' => 0, 'ordersCount' => 0, 'growthPercentage' => null];
-  $orders = $orderStats ?? ['total' => 0, 'pending' => 0];
+  $orders = $orderStats ?? ['total' => 0];
   $inventory = $inventory ?? ['totalStock' => 0, 'lowStockCount' => 0, 'lowStockThreshold' => 0];
   $recentOrders = $recentOrders ?? collect();
   $topSellingProducts = $topSellingProducts ?? collect();
         $totalRevenueFormatted = 'Rp ' . number_format($summary['totalRevenue'], 0, ',', '.');
         $ordersCountFormatted = number_format($summary['ordersCount'], 0, ',', '.');
   $totalOrdersFormatted = number_format($orders['total'], 0, ',', '.');
-  $pendingOrdersFormatted = number_format($orders['pending'], 0, ',', '.');
   $totalStockFormatted = number_format($inventory['totalStock'], 0, ',', '.');
   $lowStockThreshold = $inventory['lowStockThreshold'];
   $lowStockCountFormatted = number_format($inventory['lowStockCount'], 0, ',', '.');
@@ -40,7 +39,6 @@
       <div class="bg-white shadow-sm border border-gray-100 rounded-md p-6">
         <h2 class="text-sm font-semibold text-gray-600 mb-2">TOTAL ORDERS</h2>
         <p class="text-3xl font-bold text-gray-800">{{ $totalOrdersFormatted }}</p>
-        <p class="text-xs text-gray-400 mt-1">Pending: {{ $pendingOrdersFormatted }}</p>
       </div>
 
       <!-- Product Stock -->
